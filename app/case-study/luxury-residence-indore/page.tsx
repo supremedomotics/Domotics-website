@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Header } from '@/components/header'
@@ -10,11 +10,11 @@ import { Footer } from '@/components/footer'
 const CASAMBI_PROJECT_URL = 'https://casambi.com/projects/mewar-kothi-residence/'
 
 const PROJECT_IMAGES = [
-  { src: '/images/project-exterior.png', alt: 'Mewar Kothi Residence exterior, Indore', aspect: 'aspect-[3/2]' },
-  { src: '/images/project-living.png', alt: 'Double-height living room with floor-to-ceiling glazing', aspect: 'aspect-[2/3]' },
-  { src: '/images/project-lighting.png', alt: 'Arched wall recess with concealed lighting and pendant fitting', aspect: 'aspect-[1868/4000]' },
-  { src: '/images/project-theatre.png', alt: 'Dedicated home theatre with acoustic wall panels', aspect: 'aspect-[3/2]' },
-  { src: '/images/project-pool.png', alt: 'Residence exterior beside the swimming pool', aspect: 'aspect-[3/2]' },
+  { src: '/images/project-exterior.png', alt: 'Mewar Kothi Residence exterior, Indore', width: 4160, height: 2774 },
+  { src: '/images/project-living.png', alt: 'Double-height living room with floor-to-ceiling glazing', width: 3416, height: 5120 },
+  { src: '/images/project-lighting.png', alt: 'Arched wall recess with concealed lighting and pendant fitting', width: 1868, height: 4000 },
+  { src: '/images/project-theatre.png', alt: 'Dedicated home theatre with acoustic wall panels', width: 5120, height: 3416 },
+  { src: '/images/project-pool.png', alt: 'Residence exterior beside the swimming pool', width: 5120, height: 3416 },
 ]
 
 const OVERVIEW = [
@@ -37,7 +37,7 @@ const TECHNOLOGIES = [
 
 const LIGHTING_POINTS = [
   '110 Casambi nodes across the residence',
-  'Wireless control, with unwired LED drivers connecting lighting throughout the home',
+  'Casambi-enabled lighting control connecting luminaires throughout the residence',
   'Custom scenes that move the home between a quiet evening and a gathering',
   'Human Centric Lighting that adjusts light through the day',
   'Scheduled lighting sequences and dynamic transitions that change gradually',
@@ -69,6 +69,29 @@ const sectionMotion = {
 export default function CaseStudyPage() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [activeImage, setActiveImage] = useState<number | null>(null)
+  const closeLightbox = useCallback(() => setActiveImage(null), [])
+  const showPrevious = useCallback(() => {
+    setActiveImage((current) => current === null ? null : (current - 1 + PROJECT_IMAGES.length) % PROJECT_IMAGES.length)
+  }, [])
+  const showNext = useCallback(() => {
+    setActiveImage((current) => current === null ? null : (current + 1) % PROJECT_IMAGES.length)
+  }, [])
+
+  useEffect(() => {
+    if (activeImage === null) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeLightbox()
+      if (event.key === 'ArrowLeft') showPrevious()
+      if (event.key === 'ArrowRight') showNext()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [activeImage, closeLightbox, showNext, showPrevious])
 
   return (
     <>
@@ -90,7 +113,7 @@ export default function CaseStudyPage() {
 
         {/* Hero Section */}
         <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-12 pb-16">
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/40 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/75 via-background/40 to-background/10 md:from-background/75 md:via-background/35 md:to-transparent z-10" />
           <div className="absolute inset-0">
             <Image
               src="/images/project-exterior.png"
@@ -122,7 +145,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Project Overview */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <motion.div
               ref={ref}
@@ -174,7 +197,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Section 1: The Residence */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-4xl px-6 lg:px-8">
             <motion.div {...sectionMotion} className="space-y-6">
               <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-medium text-foreground">
@@ -188,7 +211,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Section 2: Intelligent Lighting */}
-        <section className="py-24 lg:py-32 bg-foreground/5">
+        <section className="py-16 lg:py-20 bg-foreground/5">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 grid lg:grid-cols-2 gap-16 items-start">
             <motion.div {...sectionMotion} className="space-y-6">
               <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-medium text-foreground">
@@ -220,41 +243,43 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Image Gallery */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <motion.h2
               {...sectionMotion}
-              className="font-[family-name:var(--font-playfair)] text-3xl font-medium mb-16 text-foreground"
+              className="font-[family-name:var(--font-playfair)] text-3xl font-medium mb-10 text-foreground"
             >
               Project Gallery
             </motion.h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 [column-fill:_balance]">
               {PROJECT_IMAGES.map((img, idx) => (
-                <motion.div
+                <motion.button
                   key={img.src}
+                  type="button"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow"
+                  transition={{ duration: 0.5, delay: idx * 0.07 }}
+                  onClick={() => setActiveImage(idx)}
+                  aria-label={`Open image ${idx + 1}: ${img.alt}`}
+                  className="group mb-5 block w-full break-inside-avoid overflow-hidden rounded-lg bg-foreground/[0.03] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-4"
                 >
-                  <div className={`${img.aspect} relative bg-foreground/[0.03]`}>
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                      className="object-contain hover:scale-[1.02] transition-transform duration-300"
-                    />
-                  </div>
-                </motion.div>
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    width={img.width}
+                    height={img.height}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.025]"
+                  />
+                </motion.button>
               ))}
             </div>
           </div>
         </section>
 
         {/* Section 3: Beyond Lighting */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-4xl px-6 lg:px-8">
             <motion.div {...sectionMotion} className="space-y-6">
               <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-medium text-foreground">
@@ -276,7 +301,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Section 4: Complete Technology Integration */}
-        <section className="py-24 lg:py-32 bg-foreground/5">
+        <section className="py-16 lg:py-20 bg-foreground/5">
           <div className="mx-auto max-w-4xl px-6 lg:px-8">
             <motion.div {...sectionMotion} className="space-y-6">
               <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-medium text-foreground">
@@ -298,7 +323,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Section 5: Project Recognition */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-4xl px-6 lg:px-8">
             <motion.div {...sectionMotion} className="space-y-8">
               <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-medium text-foreground">
@@ -341,15 +366,15 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Technologies Section */}
-        <section className="py-24 lg:py-32 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 border-t border-foreground/10">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <motion.h2
               {...sectionMotion}
-              className="font-[family-name:var(--font-playfair)] text-3xl font-medium mb-16 text-foreground"
+              className="font-[family-name:var(--font-playfair)] text-3xl font-medium mb-10 text-foreground"
             >
               Integrated Technologies
             </motion.h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid items-stretch sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {TECHNOLOGIES.map((tech, idx) => (
                 <motion.div
                   key={tech.name}
@@ -357,7 +382,7 @@ export default function CaseStudyPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="p-6 rounded-xl border border-foreground/10 hover:border-foreground/20 transition-colors group"
+                  className="h-full rounded-lg border border-foreground/10 p-5 transition-colors hover:border-foreground/20"
                 >
                   <h3 className="font-medium text-foreground mb-3">{tech.name}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{tech.desc}</p>
@@ -368,7 +393,7 @@ export default function CaseStudyPage() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 lg:py-32 bg-foreground/5 border-t border-foreground/10">
+        <section className="py-16 lg:py-20 bg-foreground/5 border-t border-foreground/10">
           <div className="mx-auto max-w-4xl px-6 lg:px-8">
             <motion.div {...sectionMotion} className="text-center space-y-8">
               <div>
@@ -396,6 +421,37 @@ export default function CaseStudyPage() {
             </motion.div>
           </div>
         </section>
+        {activeImage !== null && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Project gallery image viewer"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-8"
+            onClick={closeLightbox}
+          >
+            <button type="button" onClick={closeLightbox} aria-label="Close image viewer" className="absolute right-4 top-4 z-10 rounded-full border border-white/30 px-4 py-2 text-sm text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              Close <span aria-hidden="true">×</span>
+            </button>
+            <button type="button" onClick={(event) => { event.stopPropagation(); showPrevious() }} aria-label="Previous image" className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 p-3 text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-8">
+              <span aria-hidden="true">←</span>
+            </button>
+            <figure className="flex h-full w-full flex-col items-center justify-center gap-3" onClick={(event) => event.stopPropagation()}>
+              <Image
+                src={PROJECT_IMAGES[activeImage].src}
+                alt={PROJECT_IMAGES[activeImage].alt}
+                width={PROJECT_IMAGES[activeImage].width}
+                height={PROJECT_IMAGES[activeImage].height}
+                sizes="100vw"
+                className="max-h-[calc(100vh-7rem)] w-auto max-w-[calc(100vw-5rem)] object-contain"
+                priority
+              />
+              <figcaption className="text-center text-sm text-white/80">{PROJECT_IMAGES[activeImage].alt} · {activeImage + 1} of {PROJECT_IMAGES.length}</figcaption>
+            </figure>
+            <button type="button" onClick={(event) => { event.stopPropagation(); showNext() }} aria-label="Next image" className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 p-3 text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-8">
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        )}
       </main>
       <Footer />
     </>
