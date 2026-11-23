@@ -273,10 +273,14 @@ export default function CaseStudyPage() {
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   The residence now delivers a complete luxury living experience where technology enhances every moment without ever calling attention to itself. All systems work in harmony, responding to the homeowners&apos; needs while respecting the architectural vision of their home.
                 </p>
-                <div className="grid md:grid-cols-2 gap-8 mt-8 pt-8 border-t border-foreground/10">
+                <div className="grid sm:grid-cols-3 gap-8 mt-8 pt-8 border-t border-foreground/10">
                   <div>
-                    <p className="text-4xl font-medium text-foreground mb-2">8+</p>
-                    <p className="text-muted-foreground">Integrated Technology Systems</p>
+                    <p className="text-4xl font-medium text-foreground mb-2">17,000+</p>
+                    <p className="text-muted-foreground">sq ft Area Covered</p>
+                  </div>
+                  <div>
+                    <p className="text-4xl font-medium text-foreground mb-2">11+</p>
+                    <p className="text-muted-foreground">Integrated Technologies</p>
                   </div>
                   <div>
                     <p className="text-4xl font-medium text-foreground mb-2">100%</p>
