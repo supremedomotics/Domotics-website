@@ -8,27 +8,27 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 const PROJECT_IMAGES = [
   {
     src: "/images/project-exterior.png",
-    alt: "Luxury residence exterior architecture",
+    alt: "Exterior of Mewar Kothi Residence in Indore",
     title: "Exterior Architecture",
   },
   {
     src: "/images/project-living.png",
-    alt: "Modern living room with premium lighting",
+    alt: "Double-height living room with floor-to-ceiling glazing and pendant lighting",
     title: "Living Space",
   },
   {
     src: "/images/project-lighting.png",
-    alt: "Architectural lighting details",
+    alt: "Arched wall recess with concealed lighting and pendant fitting",
     title: "Lighting Integration",
   },
   {
     src: "/images/project-theatre.png",
-    alt: "Home theatre with Dolby Atmos",
+    alt: "Dedicated home theatre with projection screen and seating",
     title: "Entertainment Hub",
   },
   {
     src: "/images/project-pool.png",
-    alt: "Luxury pool area with outdoor lighting",
+    alt: "Swimming pool beside the landscaped residence",
     title: "Outdoor Living",
   },
 ]
@@ -94,11 +94,31 @@ export function FeaturedProject() {
             Featured Project
           </p>
           <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl lg:text-6xl font-medium leading-[1.15] tracking-tight text-foreground mb-6">
-            Luxury Residence, Indore
+            Mewar Kothi Residence, Indore
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            A fully integrated luxury residence combining intelligent lighting, security, networking, communication, and entertainment systems into a seamless living experience.
+            An exceptional residential integration bringing architectural lighting, intelligent automation, security, networking and entertainment together into one seamless living experience.
           </p>
+          <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+            Featuring 110 Casambi nodes, the residence combines wireless lighting control, customised scenes, Human Centric Lighting and motorised curtains, alongside a wider ecosystem of integrated home technologies.
+          </p>
+          <div className="mt-10 border-l border-foreground/20 pl-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-medium mb-2">
+              Casambi Global Project Portfolio
+            </p>
+            <p className="text-foreground/80 mb-3">
+              Featured on Casambi&apos;s official global project portfolio. Casambi Commission Partner — Supreme Domotics.
+            </p>
+            <a
+              href="https://casambi.com/projects/mewar-kothi-residence/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-foreground underline underline-offset-4 hover:text-foreground/70 transition-colors"
+            >
+              View project on Casambi <span aria-hidden="true">↗</span>
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </div>
           <div className="h-px bg-foreground/10 mt-8" />
         </motion.div>
 
@@ -125,6 +145,7 @@ export function FeaturedProject() {
                   src={image.src}
                   alt={image.alt}
                   fill
+                  sizes={idx === 0 || idx === 3 ? "(min-width: 1024px) 66vw, 100vw" : "(min-width: 1024px) 33vw, calc(100vw - 3rem)"}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -143,6 +164,7 @@ export function FeaturedProject() {
                   src={PROJECT_IMAGES[activeImageIndex].src}
                   alt={PROJECT_IMAGES[activeImageIndex].alt}
                   fill
+                  sizes="calc(100vw - 3rem)"
                   className="object-cover"
                 />
               </div>
