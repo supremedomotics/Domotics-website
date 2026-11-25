@@ -5,7 +5,7 @@ import { Film, Lightbulb, Moon, Sun, Thermometer, Tv } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 
-type Mode = "morning" | "evening" | "cinema" | "away"
+type Mode = "morning" | "evening" | "movie" | "away"
 
 type LightState = {
   warm: number
@@ -17,7 +17,6 @@ type LightState = {
   contrast: number
   saturate: number
   hueRotate: number
-  spotlights: number
 }
 
 type Scene = {
@@ -27,9 +26,9 @@ type Scene = {
   desc: string
   lighting: number
   kelvin: number
-  curtains: string
+  curtains: number
   climate: number
-  entertainment: "Off" | "On"
+  entertainment: "Off" | "Music" | "Movie"
   visual: LightState
 }
 
@@ -40,37 +39,37 @@ const SCENES: Record<Mode, Scene> = {
     id: "morning",
     label: "Morning",
     icon: Sun,
-    desc: "Natural daylight, a refreshing atmosphere and a comfortable start to the day.",
+    desc: "Start the day with natural light and a refreshing atmosphere.",
     lighting: 45,
     kelvin: 5000,
-    curtains: "Open",
+    curtains: 100,
     climate: 22,
     entertainment: "Off",
-    visual: { warm: 0, skyMask: 0, ambient: 0.12, dim: 0, vignette: 0, brightness: 1, contrast: 1, saturate: 1, hueRotate: 0, spotlights: 0.45 },
+    visual: { warm: 0, skyMask: 0, ambient: 0.12, dim: 0, vignette: 0, brightness: 1, contrast: 1, saturate: 1, hueRotate: 0 },
   },
   evening: {
     id: "evening",
     label: "Evening",
     icon: Moon,
-    desc: "Warm ambient light settles in as the day winds down.",
-    lighting: 42,
+    desc: "Transition into a warm, relaxed atmosphere.",
+    lighting: 53,
     kelvin: 2700,
-    curtains: "Partially open",
+    curtains: 55,
     climate: 21,
-    entertainment: "Off",
-    visual: { warm: 0.24, skyMask: 0.12, ambient: 0.42, dim: 0.12, vignette: 0.08, brightness: 0.96, contrast: 1.03, saturate: 0.96, hueRotate: -2, spotlights: 0.5 },
+    entertainment: "Music",
+    visual: { warm: 0.28, skyMask: 0.12, ambient: 0.42, dim: 0.08, vignette: 0.05, brightness: 0.98, contrast: 1.03, saturate: 0.98, hueRotate: -1 },
   },
-  cinema: {
-    id: "cinema",
-    label: "Cinema",
+  movie: {
+    id: "movie",
+    label: "Movie",
     icon: Film,
-    desc: "A quieter lighting scene for an evening on the big screen.",
-    lighting: 14,
+    desc: "Settle in for a film with closed curtains and low, warm lighting.",
+    lighting: 17,
     kelvin: 2700,
-    curtains: "Closed",
+    curtains: 0,
     climate: 20,
-    entertainment: "On",
-    visual: { warm: 0.2, skyMask: 0.38, ambient: 0.2, dim: 0.24, vignette: 0.18, brightness: 0.86, contrast: 1.08, saturate: 0.94, hueRotate: -2, spotlights: 0.28 },
+    entertainment: "Movie",
+    visual: { warm: 0.2, skyMask: 0.75, ambient: 0.2, dim: 0.18, vignette: 0.14, brightness: 0.92, contrast: 1.06, saturate: 0.95, hueRotate: -2 },
   },
   away: {
     id: "away",
@@ -79,10 +78,10 @@ const SCENES: Record<Mode, Scene> = {
     desc: "Non-essential lighting and entertainment switch off while the home saves energy.",
     lighting: 0,
     kelvin: 4000,
-    curtains: "35% open",
+    curtains: 35,
     climate: 19,
     entertainment: "Off",
-    visual: { warm: 0, skyMask: 0.08, ambient: 0.02, dim: 0.16, vignette: 0.02, brightness: 0.96, contrast: 1, saturate: 0.9, hueRotate: 0, spotlights: 0.12 },
+    visual: { warm: 0, skyMask: 0, ambient: 0, dim: 0, vignette: 0, brightness: 1, contrast: 1, saturate: 1, hueRotate: 0 },
   },
 }
 
@@ -113,12 +112,18 @@ const buildAmbient = (r: number, g: number, b: number) =>
   `radial-gradient(ellipse 80% 60% at 50% 55%, rgba(${r},${Math.round(g * 0.95)},${Math.round(b * 0.9)},0.22), transparent 75%)`
 
 const buildSpotlights = (r: number, g: number, b: number) =>
-  `radial-gradient(circle 11% at 10% 5%, rgba(${r},${g},${b},0.95), transparent 75%), ` +
-  `radial-gradient(circle 11% at 90% 5%, rgba(${r},${g},${b},0.95), transparent 75%), ` +
-  `radial-gradient(circle 9% at 25% 17%, rgba(${r},${g},${b},0.85), transparent 75%), ` +
-  `radial-gradient(circle 9% at 75% 17%, rgba(${r},${g},${b},0.85), transparent 75%), ` +
-  `radial-gradient(ellipse 12% 14% at 22% 58%, rgba(${r},${g},${b},0.95), transparent 70%), ` +
-  `radial-gradient(ellipse 12% 14% at 58% 58%, rgba(${r},${g},${b},0.95), transparent 70%)`
+  `radial-gradient(ellipse 10% 15% at 25% 5.5%, rgba(${r},${g},${b},0.72), transparent 100%), ` +
+  `radial-gradient(ellipse 10% 15% at 67% 5.5%, rgba(${r},${g},${b},0.72), transparent 100%), ` +
+  `radial-gradient(ellipse 15% 24% at 20% 59%, rgba(${r},${g},${b},0.64), transparent 100%), ` +
+  `radial-gradient(ellipse 15% 24% at 69% 59%, rgba(${r},${g},${b},0.64), transparent 100%), ` +
+  `radial-gradient(ellipse 48% 14% at 50% 0%, rgba(${r},${g},${b},0.24), transparent 100%)`
+
+const LIGHTS_OFF =
+  "radial-gradient(ellipse 1.2% 1.8% at 25% 5.5%, rgba(24,21,18,0.48) 0%, rgba(24,21,18,0.2) 48%, transparent 100%), " +
+  "radial-gradient(ellipse 1.2% 1.8% at 67% 5.5%, rgba(24,21,18,0.48) 0%, rgba(24,21,18,0.2) 48%, transparent 100%), " +
+  "radial-gradient(ellipse 6% 9% at 20% 59%, rgba(24,21,18,0.3) 0%, transparent 100%), " +
+  "radial-gradient(ellipse 6% 9% at 69% 59%, rgba(24,21,18,0.3) 0%, transparent 100%), " +
+  "radial-gradient(ellipse 78% 8% at 50% 12%, rgba(24,21,18,0.82) 0%, rgba(24,21,18,0.42) 52%, transparent 100%)"
 
 const SKY_MASK =
   "linear-gradient(90deg," +
@@ -130,6 +135,11 @@ const VIGNETTE =
 
 const filterString = (s: LightState) =>
   `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hueRotate}deg)`
+
+const curtainOffset = (position: number, side: "left" | "right") =>
+  (100 - position) * (side === "left" ? -0.09 : 0.11)
+
+const curtainScale = (position: number) => 1 + ((100 - position) / 100) * 1.2
 
 type StatusIcon = "lighting" | "curtains" | "av" | "hvac"
 
@@ -161,14 +171,55 @@ function StatusRow({ icon, label, value }: { icon: StatusIcon; label: string; va
   )
 }
 
+function SceneRangeControl({
+  id,
+  label,
+  value,
+  min,
+  max,
+  suffix = "%",
+  onChange,
+}: {
+  id: string
+  label: string
+  value: number
+  min: number
+  max: number
+  suffix?: string
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <label htmlFor={id} className="text-xs text-background/70">{label}</label>
+        <output htmlFor={id} className="text-xs tabular-nums text-background">{value}{suffix}</output>
+      </div>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(event) => onChange(Number(event.currentTarget.value))}
+        className="h-2 w-full cursor-pointer appearance-none rounded-full accent-[#d8c6a5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background/70"
+      />
+    </div>
+  )
+}
+
 export function ExperienceDemo() {
   const [mode, setMode] = useState<Mode>("morning")
   const [isAnimating, setIsAnimating] = useState(false)
   const prevMode = useRef<Mode>("morning")
+  const [isCustom, setIsCustom] = useState(false)
   const [kelvin, setKelvin] = useState(SCENES.morning.kelvin)
   const kelvinRef = useRef(SCENES.morning.kelvin)
   const [lightProgress, setLightProgress] = useState(SCENES.morning.lighting)
   const lightProgressRef = useRef(SCENES.morning.lighting)
+  const [curtainOpen, setCurtainOpen] = useState(SCENES.morning.curtains)
+  const curtainOpenRef = useRef(SCENES.morning.curtains)
+  const [climateTarget, setClimateTarget] = useState(SCENES.morning.climate)
+  const climateTargetRef = useRef(SCENES.morning.climate)
 
   const stageRef = useRef<HTMLDivElement>(null)
   const warmRef = useRef<HTMLDivElement>(null)
@@ -176,8 +227,9 @@ export function ExperienceDemo() {
   const ambientRef = useRef<HTMLDivElement>(null)
   const dimRef = useRef<HTMLDivElement>(null)
   const vignetteRef = useRef<HTMLDivElement>(null)
+  const curtainLRef = useRef<HTMLDivElement>(null)
+  const curtainRRef = useRef<HTMLDivElement>(null)
   const tlRef = useRef<any>(null)
-
   useEffect(() => {
     const initial = SCENES.morning.visual
     gsap.set(warmRef.current, { opacity: initial.warm })
@@ -185,15 +237,21 @@ export function ExperienceDemo() {
     gsap.set(ambientRef.current, { opacity: initial.ambient })
     gsap.set(dimRef.current, { opacity: initial.dim })
     gsap.set(vignetteRef.current, { opacity: initial.vignette })
+    gsap.set(curtainLRef.current, { xPercent: curtainOffset(SCENES.morning.curtains, "left"), scaleX: curtainScale(SCENES.morning.curtains), transformOrigin: "19% center" })
+    gsap.set(curtainRRef.current, { xPercent: curtainOffset(SCENES.morning.curtains, "right"), scaleX: curtainScale(SCENES.morning.curtains), transformOrigin: "78% center" })
     gsap.set(stageRef.current, { filter: filterString(initial) })
 
-    return () => tlRef.current?.kill()
+    return () => {
+      tlRef.current?.kill()
+      gsap.killTweensOf([curtainLRef.current, curtainRRef.current])
+    }
   }, [])
 
-  const runTransition = (target: Mode) => {
-    if (prevMode.current === target) return
+  const runTransition = (target: Mode, force = false) => {
+    if (prevMode.current === target && !force) return
 
     tlRef.current?.kill()
+    gsap.killTweensOf([curtainLRef.current, curtainRRef.current])
     setIsAnimating(true)
 
     const scene = SCENES[target]
@@ -206,6 +264,8 @@ export function ExperienceDemo() {
 
     const lights = { value: lightProgressRef.current }
     const temperature = { value: kelvinRef.current }
+    const curtains = { value: curtainOpenRef.current }
+    const climate = { value: climateTargetRef.current }
 
     timeline
       .to(warmRef.current, { opacity: visual.warm }, 0)
@@ -214,6 +274,8 @@ export function ExperienceDemo() {
       .to(dimRef.current, { opacity: visual.dim }, 0)
       .to(vignetteRef.current, { opacity: visual.vignette }, 0)
       .to(stageRef.current, { filter: filterString(visual) }, 0)
+      .to(curtainLRef.current, { xPercent: curtainOffset(scene.curtains, "left"), scaleX: curtainScale(scene.curtains) }, 0)
+      .to(curtainRRef.current, { xPercent: curtainOffset(scene.curtains, "right"), scaleX: curtainScale(scene.curtains) }, 0)
       .to(lights, {
         value: scene.lighting,
         onUpdate: () => {
@@ -230,24 +292,87 @@ export function ExperienceDemo() {
           setKelvin(value)
         },
       }, 0)
+      .to(curtains, {
+        value: scene.curtains,
+        onUpdate: () => {
+          const value = Math.round(curtains.value)
+          curtainOpenRef.current = value
+          setCurtainOpen(value)
+        },
+      }, 0)
+      .to(climate, {
+        value: scene.climate,
+        onUpdate: () => {
+          const value = Math.round(climate.value)
+          climateTargetRef.current = value
+          setClimateTarget(value)
+        },
+      }, 0)
 
     tlRef.current = timeline
     prevMode.current = target
   }
 
   const handleSelect = (next: Mode) => {
-    if (next === mode) return
+    const scene = SCENES[next]
+    const isCurrentScene = next === mode
+    if (
+      isCurrentScene &&
+      !isCustom &&
+      lightProgressRef.current === scene.lighting &&
+      kelvinRef.current === scene.kelvin &&
+      curtainOpenRef.current === scene.curtains &&
+      climateTargetRef.current === scene.climate
+    ) return
+
     setMode(next)
-    runTransition(next)
+    setIsCustom(false)
+    runTransition(next, isCurrentScene)
   }
 
-  const currentButton = SCENES[mode]
+  const interruptTransition = () => {
+    tlRef.current?.kill()
+    gsap.killTweensOf([curtainLRef.current, curtainRRef.current])
+    setIsAnimating(false)
+  }
+
+  const handleManualLight = (value: number) => {
+    interruptTransition()
+    setIsCustom(true)
+    lightProgressRef.current = value
+    setLightProgress(value)
+  }
+
+  const handleManualKelvin = (value: number) => {
+    interruptTransition()
+    setIsCustom(true)
+    kelvinRef.current = value
+    setKelvin(value)
+  }
+
+  const handleManualCurtains = (value: number) => {
+    interruptTransition()
+    setIsCustom(true)
+    curtainOpenRef.current = value
+    setCurtainOpen(value)
+    gsap.to(curtainLRef.current, { xPercent: curtainOffset(value, "left"), scaleX: curtainScale(value), duration: 0.45, ease: "power2.inOut", overwrite: "auto" })
+    gsap.to(curtainRRef.current, { xPercent: curtainOffset(value, "right"), scaleX: curtainScale(value), duration: 0.45, ease: "power2.inOut", overwrite: "auto" })
+  }
+
+  const handleManualClimate = (value: number) => {
+    interruptTransition()
+    setIsCustom(true)
+    climateTargetRef.current = value
+    setClimateTarget(value)
+  }
+
+  const currentScene = SCENES[mode]
 
   const lightRGB = kelvinToRGB(kelvin)
   const warmBg = buildWarmOverlay(lightRGB.r, lightRGB.g, lightRGB.b)
   const ambientBg = buildAmbient(lightRGB.r, lightRGB.g, lightRGB.b)
   const spotlightsBg = buildSpotlights(lightRGB.r, lightRGB.g, lightRGB.b)
-  const spotlightOpacity = currentButton.visual.spotlights
+  const spotlightOpacity = lightProgress / 100
 
   const kelvinLabel = (() => {
     if (kelvin <= 3000) return "Warm white"
@@ -259,12 +384,12 @@ export function ExperienceDemo() {
 
   const status = {
     lighting: lightProgress === 0 ? "Off" : `${lightProgress}%`,
-    curtains: currentButton.curtains,
-    av: currentButton.entertainment,
-    hvac: `${currentButton.climate}°C target`,
+    curtains: curtainOpen === 0 ? "Closed · 0%" : curtainOpen === 100 ? "Open · 100%" : `${curtainOpen}% open`,
+    av: currentScene.entertainment,
+    hvac: `${climateTarget}°C target`,
   }
 
-  const modeBadgeLabel = `${currentButton.label.toUpperCase()} SCENE ACTIVE`
+  const modeBadgeLabel = isCustom ? "CUSTOM SCENE ACTIVE" : `${currentScene.label.toUpperCase()} SCENE ACTIVE`
 
   return (
     <section id="experience" className="py-32 lg:py-40 bg-foreground text-background">
@@ -281,13 +406,22 @@ export function ExperienceDemo() {
               <Image src={BASE_IMAGE} alt="Luxury living room" fill priority sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
             </div>
 
+            <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div ref={curtainLRef} className="absolute inset-0 will-change-transform" style={{ clipPath: "inset(14% 81% 26% 14%)", maskImage: "linear-gradient(180deg, transparent 14%, black 19%, black 67%, transparent 74%)", WebkitMaskImage: "linear-gradient(180deg, transparent 14%, black 19%, black 67%, transparent 74%)" }}>
+                <Image src={BASE_IMAGE} alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
+              </div>
+              <div ref={curtainRRef} className="absolute inset-0 will-change-transform" style={{ clipPath: "inset(14% 17% 26% 78%)", maskImage: "linear-gradient(180deg, transparent 14%, black 19%, black 67%, transparent 74%)", WebkitMaskImage: "linear-gradient(180deg, transparent 14%, black 19%, black 67%, transparent 74%)" }}>
+                <Image src={BASE_IMAGE} alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
+              </div>
+            </div>
+
             <div ref={warmRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: warmBg, mixBlendMode: "overlay", opacity: 0, willChange: "opacity", transition: "background 180ms ease-out" }} />
             <div ref={skyMaskRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: SKY_MASK, opacity: 0, willChange: "opacity" }} />
             <div ref={ambientRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: ambientBg, mixBlendMode: "screen", opacity: 0, willChange: "opacity", transition: "background 180ms ease-out" }} />
             <div ref={dimRef} aria-hidden className="absolute inset-0 pointer-events-none bg-black" style={{ opacity: 0, willChange: "opacity" }} />
             <div ref={vignetteRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: VIGNETTE, opacity: 0, willChange: "opacity" }} />
-
-            <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: spotlightsBg, mixBlendMode: "overlay", opacity: spotlightOpacity, transition: "background 180ms ease-out, opacity 600ms ease-out", zIndex: 19 }} />
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: LIGHTS_OFF, mixBlendMode: "multiply", opacity: 1 - spotlightOpacity, transition: "opacity 120ms linear", willChange: "opacity", zIndex: 18 }} />
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: spotlightsBg, mixBlendMode: "screen", opacity: spotlightOpacity, transition: "background 180ms ease-out, opacity 120ms linear", willChange: "opacity", zIndex: 19 }} />
 
 
             <div className="absolute bottom-24 right-6 pointer-events-none z-30" key={`badge-${mode}`}>
@@ -308,9 +442,9 @@ export function ExperienceDemo() {
             </div>
 
             <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between pointer-events-none z-30">
-              <div key={mode} className="bg-black/55 backdrop-blur-md rounded-lg px-5 py-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <p className="text-base font-medium text-white">{currentButton.label} Mode</p>
-                <p className="text-sm text-white/70 mt-1">{currentButton.desc}</p>
+              <div key={`${mode}-${isCustom}`} className="bg-black/55 backdrop-blur-md rounded-lg px-5 py-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p className="text-base font-medium text-white">{isCustom ? "Custom Scene" : `${currentScene.label} Mode`}</p>
+                <p className="text-sm text-white/70 mt-1">{isCustom ? "Manual settings are active for this room." : currentScene.desc}</p>
               </div>
             </div>
           </div>
@@ -318,7 +452,7 @@ export function ExperienceDemo() {
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-8" role="group" aria-label="Choose a home scene">
             {BUTTONS.map((b) => {
               const Icon = b.icon
-              const active = mode === b.id
+              const active = !isCustom && mode === b.id
               return (
                 <button
                   key={b.id}
@@ -339,7 +473,7 @@ export function ExperienceDemo() {
           </div>
 
           <p className="mt-4 text-center text-xs text-background/40 tabular-nums" aria-live="polite">
-            {isAnimating ? "transitioning…" : `${currentButton.label.toLowerCase()} — steady`}
+            {isAnimating ? "transitioning…" : isCustom ? "custom scene — steady" : `${currentScene.label.toLowerCase()} — steady`}
           </p>
 
           <p className="mt-3 text-center text-xs text-background/40">Website simulation · No hardware connected</p>
@@ -354,11 +488,6 @@ export function ExperienceDemo() {
                   {kelvinLabel} <span className="text-background/60">{kelvin}K</span>
                 </span>
               </div>
-              {/* Read-only feedback display.
-                  Uses pointer-events-none + readOnly + aria-readonly to fully
-                  disable user interaction while keeping the slider's thumb
-                  position as a visual indicator. opacity-100 on disabled keeps
-                  the colors crisp (browsers normally fade disabled inputs). */}
               <input
                 id="kelvin-slider"
                 type="range"
@@ -366,12 +495,9 @@ export function ExperienceDemo() {
                 max={6500}
                 step={50}
                 value={kelvin}
-                readOnly
-                tabIndex={-1}
-                aria-label="Light colour temperature in Kelvin (read-only)"
-                aria-readonly="true"
-                onChange={() => { /* read-only: ignore any value change */ }}
-                className="w-full h-2 rounded-full appearance-none cursor-default pointer-events-none opacity-100"
+                aria-label="Light colour temperature in Kelvin"
+                onChange={(event) => handleManualKelvin(Number(event.currentTarget.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background/60"
                 style={{
                   background:
                     "linear-gradient(90deg, #ff8a3d 0%, #ffe0b8 47%, #f5f5f5 53%, #cfe3ff 75%, #6aa8ff 100%)",
@@ -383,6 +509,23 @@ export function ExperienceDemo() {
                 <span className="text-sky-300/90">6500K</span>
               </div>
             </div>
+          </div>
+
+          <div className="mt-4 max-w-md mx-auto">
+            <details className="group rounded-2xl bg-background/5 border border-background/10 backdrop-blur-md">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-background/60 [&::-webkit-details-marker]:hidden">
+                <span>
+                  <span className="block text-sm font-medium text-background">Manual controls</span>
+                  <span className="mt-1 block text-xs text-background/50">Adjust lighting, curtains and climate</span>
+                </span>
+                <span aria-hidden="true" className="text-xl text-background/55 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <div className="space-y-5 border-t border-background/10 px-5 py-5">
+                <SceneRangeControl id="manual-lighting" label="Lighting brightness" value={lightProgress} min={0} max={100} onChange={handleManualLight} />
+                <SceneRangeControl id="manual-curtains" label="Curtain position · open" value={curtainOpen} min={0} max={100} onChange={handleManualCurtains} />
+                <SceneRangeControl id="manual-climate" label="Climate target" value={climateTarget} min={18} max={30} suffix="°C" onChange={handleManualClimate} />
+              </div>
+            </details>
           </div>
         </div>
       </div>
