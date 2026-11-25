@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { MessageCircle } from "lucide-react"
 import { useState } from "react"
+import { track } from "@vercel/analytics"
 
 export function WhatsAppCTA() {
   const [isHovered, setIsHovered] = useState(false)
@@ -13,6 +14,7 @@ export function WhatsAppCTA() {
   return (
     <motion.a
       href={whatsappUrl}
+      onClick={() => track("whatsapp_click", { source: "floating_contact" })}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

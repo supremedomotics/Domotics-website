@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X } from "lucide-react"
+import { track } from "@vercel/analytics"
 
 const navLinks = [
   { label: "Philosophy", href: "/#philosophy" },
@@ -50,6 +51,7 @@ export function Header({ solidBackground = false }: { solidBackground?: boolean 
                   <a
                     key={link.href}
                     href={link.href}
+                    onClick={() => link.href === "/#showroom" && track("experience_centre_click", { source: "header_navigation" })}
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
                   >
                     {link.label}
@@ -60,6 +62,7 @@ export function Header({ solidBackground = false }: { solidBackground?: boolean 
             <div className="hidden lg:block">
               <a
                 href="/#contact-form"
+                onClick={() => track("project_enquiry_click", { source: "header_cta" })}
                 className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-all duration-300 hover:bg-foreground/90 hover:scale-105"
               >
                 Discuss Your Project
@@ -104,7 +107,10 @@ export function Header({ solidBackground = false }: { solidBackground?: boolean 
                     <motion.a
                       key={link.href}
                       href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={() => {
+                        if (link.href === "/#showroom") track("experience_centre_click", { source: "header_navigation" })
+                        setIsMobileMenuOpen(false)
+                      }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -115,7 +121,10 @@ export function Header({ solidBackground = false }: { solidBackground?: boolean 
                 ))}
                 <motion.a
                   href="/#contact-form"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    track("project_enquiry_click", { source: "mobile_header_cta" })
+                    setIsMobileMenuOpen(false)
+                  }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: navLinks.length * 0.1 }}

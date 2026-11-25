@@ -2,13 +2,14 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef, useState } from "react"
+import { track } from "@vercel/analytics"
 import { ArrowRight, Phone, Mail, MapPin } from "lucide-react"
 
 export function ConsultationForm() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "ready" | "error">("idle")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,23 +21,22 @@ export function ConsultationForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+    setSubmitStatus("idle")
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus("idle")
+    track("contact_form_submit_attempt", { method: "mailto" })
 
     try {
       const subject = `Consultation Request from ${formData.name}`
       const body = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nProperty: ${formData.property}\nInterest: ${formData.interest}\n\nMessage:\n${formData.message}`
 
-      // Open the user's mail client with the request pre-filled
       window.location.href = `mailto:info@supremedomotics.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
-      setSubmitStatus("success")
-      setFormData({ name: "", email: "", phone: "", property: "", interest: "", message: "" })
-      setTimeout(() => setSubmitStatus("idle"), 4000)
+      setSubmitStatus("ready")
     } catch (error) {
       console.log("[v0] Form submission error:", error)
       setSubmitStatus("error")
@@ -127,6 +127,7 @@ export function ConsultationForm() {
                   type="text"
                   id="name"
                   name="name"
+                  autoComplete="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -144,6 +145,7 @@ export function ConsultationForm() {
                   type="email"
                   id="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -163,6 +165,10 @@ export function ConsultationForm() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  autoComplete="tel"
+                  inputMode="tel"
+                  pattern={String.raw`(?=(?:[^0-9]*[0-9]){7,15}[^0-9]*$)\+?[0-9() .-]+`}
+                  title="Enter 7 to 15 digits; spaces, +, hyphens and parentheses are optional."
                   className="w-full px-4 py-3 bg-background border border-foreground/20 rounded-lg text-foreground placeholder-foreground/40 focus:outline-none focus:border-foreground/60 transition-colors"
                   placeholder="+91 XXXXX XXXXX"
                 />
@@ -233,18 +239,18 @@ export function ConsultationForm() {
                 disabled={isSubmitting}
                 className="w-full bg-foreground text-background py-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Sending..." : "Schedule Consultation"}
+                {isSubmitting ? "Opening email..." : "Schedule Consultation"}
                 {!isSubmitting && <ArrowRight className="h-5 w-5" />}
               </button>
 
               {/* Status Messages */}
-              {submitStatus === "success" && (
-                <p className="text-green-600 text-sm text-center">
-                  Thank you! Your email draft has opened — please hit send to reach us.
+              {submitStatus === "ready" && (
+                <p role="status" aria-live="polite" className="text-green-700 text-sm text-center">
+                  Your email app should open with a prefilled draft if one is configured. Review it and send the email to complete your enquiry; this site does not send it for you.
                 </p>
               )}
               {submitStatus === "error" && (
-                <p className="text-red-600 text-sm text-center">
+                <p role="alert" className="text-red-600 text-sm text-center">
                   Something went wrong. Please try again or contact us directly.
                 </p>
               )}

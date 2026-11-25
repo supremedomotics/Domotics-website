@@ -3,7 +3,9 @@
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
-import { Trees, Wifi, Zap } from "lucide-react"
+import Link from "next/link"
+import { track } from "@vercel/analytics"
+import { ArrowRight, Trees, Wifi, Zap } from "lucide-react"
 
 export function OutdoorNetwork() {
   const ref = useRef(null)
@@ -85,6 +87,14 @@ export function OutdoorNetwork() {
                 </motion.div>
               ))}
             </div>
+
+            <Link
+              href="/services/outdoor-automation"
+              onClick={() => track("outdoor_service_click", { source: "homepage_outdoor_section" })}
+              className="inline-flex items-center gap-2 border-b border-background/35 pb-2 text-sm font-medium text-background transition-colors hover:border-background hover:text-white"
+            >
+              Explore Outdoor & Estate Automation <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
           </motion.div>
         </div>
       </div>

@@ -2,43 +2,44 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
+import { track } from "@vercel/analytics"
 import { Lightbulb, Home, Shield, Tv, Wifi, Settings } from "lucide-react"
 
 const services = [
   {
     icon: Lightbulb,
     title: "Smart Lighting",
-    href: "smart-lighting-control",
+    href: "/services/smart-lighting-control",
     description: "KNX & Casambi solutions for intelligent illumination",
   },
   {
     icon: Home,
     title: "Home Automation",
-    href: "home-automation",
+    href: "/services/home-automation",
     description: "Centralized control for your entire living space",
   },
   {
     icon: Shield,
     title: "Security Systems",
-    href: "security-access-control",
+    href: "/services/security-access-control",
     description: "Surveillance, detection & access control",
   },
   {
     icon: Tv,
     title: "Home Theatre & AV",
-    href: "home-theatre-av",
+    href: "/services/home-theatre-av",
     description: "Immersive cinema and multi-room audio experiences",
   },
   {
     icon: Wifi,
-    title: "Networking & WiFi",
-    href: "networking-infrastructure",
+    title: "Networking & Wi-Fi",
+    href: "/services/networking-infrastructure",
     description: "Reliable connectivity throughout your home",
   },
   {
     icon: Settings,
     title: "Integration & Control",
-    href: "system-integration",
+    href: "/services/system-integration",
     description: "Unified interfaces bringing supported systems together",
   },
 ]
@@ -73,11 +74,12 @@ export function Services() {
           {services.map((service, index) => (
             <motion.a
               key={service.title}
-              href={`/services/${service.href}`}
+              href={service.href}
               aria-label={`Explore ${service.title}`}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 * index }}
+              onClick={() => track("service_detail_click", { service: service.href })}
               className="group relative rounded-2xl bg-foreground p-8 text-background transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone lg:p-10"
             >
               <div className="mb-6">
