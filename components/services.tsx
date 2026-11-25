@@ -8,32 +8,38 @@ const services = [
   {
     icon: Lightbulb,
     title: "Smart Lighting",
+    href: "smart-lighting-control",
     description: "KNX & Casambi solutions for intelligent illumination",
   },
   {
     icon: Home,
     title: "Home Automation",
+    href: "home-automation",
     description: "Centralized control for your entire living space",
   },
   {
     icon: Shield,
     title: "Security Systems",
-    description: "Ajax sensors, surveillance & access control",
+    href: "security-access-control",
+    description: "Surveillance, detection & access control",
   },
   {
     icon: Tv,
     title: "Home Theatre & AV",
+    href: "home-theatre-av",
     description: "Immersive cinema and multi-room audio experiences",
   },
   {
     icon: Wifi,
     title: "Networking & WiFi",
-    description: "Enterprise-grade connectivity throughout your home",
+    href: "networking-infrastructure",
+    description: "Reliable connectivity throughout your home",
   },
   {
     icon: Settings,
     title: "Integration & Control",
-    description: "Unified interfaces bringing everything together",
+    href: "system-integration",
+    description: "Unified interfaces bringing supported systems together",
   },
 ]
 
@@ -65,12 +71,14 @@ export function Services() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
-            <motion.div
+            <motion.a
               key={service.title}
+              href={`/services/${service.href}`}
+              aria-label={`Explore ${service.title}`}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 * index }}
-              className="group relative bg-foreground text-background rounded-2xl p-8 lg:p-10 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl"
+              className="group relative rounded-2xl bg-foreground p-8 text-background transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone lg:p-10"
             >
               <div className="mb-6">
                 <service.icon className="h-8 w-8 text-background/80 transition-transform duration-300 group-hover:scale-110" />
@@ -81,7 +89,7 @@ export function Services() {
               <p className="text-background/70 leading-relaxed">
                 {service.description}
               </p>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
       </div>

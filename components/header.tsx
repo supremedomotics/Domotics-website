@@ -3,21 +3,18 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X } from "lucide-react"
-import { usePathname } from "next/navigation"
 
 const navLinks = [
-  { label: "Philosophy", href: "#philosophy" },
-  { label: "Services", href: "#services" },
-  { label: "Experience", href: "#experience" },
-  { label: "Showroom", href: "#showroom" },
-  { label: "Audio Visual", href: "#audio-visual" },
-  { label: "Security", href: "#security" },
-  { label: "Contact", href: "#contact-form" },
+  { label: "Philosophy", href: "/#philosophy" },
+  { label: "Services", href: "/services" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Showroom", href: "/#showroom" },
+  { label: "Audio Visual", href: "/services/home-theatre-av" },
+  { label: "Security", href: "/services/security-access-control" },
+  { label: "Contact", href: "/#contact-form" },
 ]
 
-export function Header() {
-  const pathname = usePathname()
-  const isHomePage = pathname === "/"
+export function Header({ solidBackground = false }: { solidBackground?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -32,10 +29,10 @@ export function Header() {
   return (
     <>
       <motion.header
-        initial={{ y: -100 }}
+        initial={solidBackground ? { y: 0 } : { y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled || solidBackground
             ? "bg-background/90 backdrop-blur-md shadow-sm"
             : "bg-transparent"
           }`}
@@ -49,27 +46,23 @@ export function Header() {
             </a>
 
             <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => {
-                // On non-homepage, convert hash links to homepage with hash
-                const href = isHomePage ? link.href : `/${link.href}`
-                return (
+              {navLinks.map((link) => (
                   <a
                     key={link.href}
-                    href={href}
+                    href={link.href}
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
                   >
                     {link.label}
                   </a>
-                )
-              })}
+              ))}
             </nav>
 
             <div className="hidden lg:block">
               <a
-                href={isHomePage ? "#contact-form" : "/#contact-form"}
+                href="/#contact-form"
                 className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-all duration-300 hover:bg-foreground/90 hover:scale-105"
               >
-                Start Your Project
+                Discuss Your Project
               </a>
             </div>
 
@@ -107,12 +100,10 @@ export function Header() {
               </div>
 
               <nav className="flex flex-col items-center justify-center flex-1 gap-8">
-                {navLinks.map((link, index) => {
-                  const href = isHomePage ? link.href : `/${link.href}`
-                  return (
+                {navLinks.map((link, index) => (
                     <motion.a
                       key={link.href}
-                      href={href}
+                      href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -121,17 +112,16 @@ export function Header() {
                     >
                       {link.label}
                     </motion.a>
-                  )
-                })}
+                ))}
                 <motion.a
-                  href={isHomePage ? "#contact-form" : "/#contact-form"}
+                  href="/#contact-form"
                   onClick={() => setIsMobileMenuOpen(false)}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: navLinks.length * 0.1 }}
                   className="mt-4 inline-flex items-center justify-center rounded-full bg-foreground px-8 py-3 text-lg font-medium text-background"
                 >
-                  Start Your Project
+                  Discuss Your Project
                 </motion.a>
               </nav>
             </div>
