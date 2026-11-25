@@ -4,13 +4,13 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 
 const navLinks = [
-  { label: "Philosophy", href: "#philosophy" },
-  { label: "Services", href: "#services" },
-  { label: "Experience", href: "#experience" },
-  { label: "Showroom", href: "#showroom" },
-  { label: "Audio Visual", href: "#audio-visual" },
-  { label: "Security", href: "#security" },
-  { label: "Contact", href: "#contact-form" },
+  { label: "Philosophy", href: "/#philosophy" },
+  { label: "Services", href: "/services" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Showroom", href: "/#showroom" },
+  { label: "Audio Visual", href: "/services/home-theatre-av" },
+  { label: "Security", href: "/services/security-access-control" },
+  { label: "Contact", href: "/#contact-form" },
 ]
 
 export function Footer() {
