@@ -1,39 +1,11 @@
 "use client"
 
-/**
- * ExperienceDemo — Cinematic smart-home scene transition (v2.1)
- *
- * Changes from previous version:
- *   • CCT slider is now READ-ONLY feedback. User cannot drag it. Value is
- *     driven automatically by mode transitions (via tweenKelvinTo).
- */
-
 import Image from "next/image"
 import { Film, Lightbulb, Moon, Sun, Thermometer, Tv } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 
-type Mode = "morning" | "night" | "cinema"
-
-const BASE_IMAGE = "/images/living-room-morning.webp"
-
-const LIGHTS_STEADY: Record<Mode, number> = {
-  morning: 100,
-  night: 100,
-  cinema: 15,
-}
-
-const KELVIN_PER_MODE: Record<Mode, number> = {
-  morning: 4000,
-  night: 2700,
-  cinema: 2700,
-}
-
-const BUTTONS: { id: Mode; label: string; icon: typeof Sun; desc: string }[] = [
-  { id: "morning", label: "Morning", icon: Sun, desc: "Crisp daylight — curtains open, full exposure, neutral white balance." },
-  { id: "night", label: "Night", icon: Moon, desc: "Warm 2700K ambient glow, windows dark, exposure softened." },
-  { id: "cinema", label: "Cinema", icon: Film, desc: "Curtains closed, deep contrast, faint ambient light, vignette draws the eye." },
-]
+type Mode = "morning" | "evening" | "cinema" | "away"
 
 type LightState = {
   warm: number
@@ -45,14 +17,76 @@ type LightState = {
   contrast: number
   saturate: number
   hueRotate: number
-  curtain: number
+  spotlights: number
 }
 
-const STATES: Record<Mode, LightState> = {
-  morning: { warm: 0, skyMask: 0, ambient: 0, dim: 0, vignette: 0, brightness: 1.0, contrast: 1.0, saturate: 1.0, hueRotate: 0, curtain: 0 },
-  night: { warm: 0.55, skyMask: 0.92, ambient: 0.7, dim: 0.28, vignette: 0.3, brightness: 0.55, contrast: 1.1, saturate: 0.9, hueRotate: -8, curtain: 0.15 },
-  cinema: { warm: 0.45, skyMask: 1, ambient: 0.35, dim: 0.5, vignette: 0.75, brightness: 0.42, contrast: 1.22, saturate: 0.82, hueRotate: -6, curtain: 1 },
+type Scene = {
+  id: Mode
+  label: string
+  icon: typeof Sun
+  desc: string
+  lighting: number
+  kelvin: number
+  curtains: string
+  climate: number
+  entertainment: "Off" | "On"
+  visual: LightState
 }
+
+const BASE_IMAGE = "/images/living-room-morning.webp"
+
+const SCENES: Record<Mode, Scene> = {
+  morning: {
+    id: "morning",
+    label: "Morning",
+    icon: Sun,
+    desc: "Natural daylight, a refreshing atmosphere and a comfortable start to the day.",
+    lighting: 45,
+    kelvin: 5000,
+    curtains: "Open",
+    climate: 22,
+    entertainment: "Off",
+    visual: { warm: 0, skyMask: 0, ambient: 0.12, dim: 0, vignette: 0, brightness: 1, contrast: 1, saturate: 1, hueRotate: 0, spotlights: 0.45 },
+  },
+  evening: {
+    id: "evening",
+    label: "Evening",
+    icon: Moon,
+    desc: "Warm ambient light settles in as the day winds down.",
+    lighting: 42,
+    kelvin: 2700,
+    curtains: "Partially open",
+    climate: 21,
+    entertainment: "Off",
+    visual: { warm: 0.24, skyMask: 0.12, ambient: 0.42, dim: 0.12, vignette: 0.08, brightness: 0.96, contrast: 1.03, saturate: 0.96, hueRotate: -2, spotlights: 0.5 },
+  },
+  cinema: {
+    id: "cinema",
+    label: "Cinema",
+    icon: Film,
+    desc: "A quieter lighting scene for an evening on the big screen.",
+    lighting: 14,
+    kelvin: 2700,
+    curtains: "Closed",
+    climate: 20,
+    entertainment: "On",
+    visual: { warm: 0.2, skyMask: 0.38, ambient: 0.2, dim: 0.24, vignette: 0.18, brightness: 0.86, contrast: 1.08, saturate: 0.94, hueRotate: -2, spotlights: 0.28 },
+  },
+  away: {
+    id: "away",
+    label: "Away",
+    icon: Sun,
+    desc: "Non-essential lighting and entertainment switch off while the home saves energy.",
+    lighting: 0,
+    kelvin: 4000,
+    curtains: "35% open",
+    climate: 19,
+    entertainment: "Off",
+    visual: { warm: 0, skyMask: 0.08, ambient: 0.02, dim: 0.16, vignette: 0.02, brightness: 0.96, contrast: 1, saturate: 0.9, hueRotate: 0, spotlights: 0.12 },
+  },
+}
+
+const BUTTONS = Object.values(SCENES)
 
 function kelvinToRGB(k: number): { r: number; g: number; b: number } {
   const t = Math.max(0, Math.min(1, (k - 2700) / (6500 - 2700)))
@@ -94,10 +128,8 @@ const SKY_MASK =
 const VIGNETTE =
   "radial-gradient(ellipse 85% 75% at center, transparent 42%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.92) 100%)"
 
-const CURTAIN_FABRIC =
-  "repeating-linear-gradient(90deg," +
-  " #d4c4a8 0px, #c9b896 14px, #b8a47e 22px, #c9b896 30px, #d4c4a8 44px," +
-  " #b8a47e 56px, #c9b896 68px, #d4c4a8 82px)"
+const filterString = (s: LightState) =>
+  `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hueRotate}deg)`
 
 type StatusIcon = "lighting" | "curtains" | "av" | "hvac"
 
@@ -133,15 +165,10 @@ export function ExperienceDemo() {
   const [mode, setMode] = useState<Mode>("morning")
   const [isAnimating, setIsAnimating] = useState(false)
   const prevMode = useRef<Mode>("morning")
-
-  // CCT is read-only feedback — value is auto-driven by mode transitions, never by user input.
-  const [kelvin, setKelvin] = useState(KELVIN_PER_MODE.morning)
-  const kelvinRef = useRef(KELVIN_PER_MODE.morning)
-  useEffect(() => { kelvinRef.current = kelvin }, [kelvin])
-
-  const [lightProgress, setLightProgress] = useState(LIGHTS_STEADY.morning)
-  const lightProgressRef = useRef(LIGHTS_STEADY.morning)
-  useEffect(() => { lightProgressRef.current = lightProgress }, [lightProgress])
+  const [kelvin, setKelvin] = useState(SCENES.morning.kelvin)
+  const kelvinRef = useRef(SCENES.morning.kelvin)
+  const [lightProgress, setLightProgress] = useState(SCENES.morning.lighting)
+  const lightProgressRef = useRef(SCENES.morning.lighting)
 
   const stageRef = useRef<HTMLDivElement>(null)
   const warmRef = useRef<HTMLDivElement>(null)
@@ -149,197 +176,64 @@ export function ExperienceDemo() {
   const ambientRef = useRef<HTMLDivElement>(null)
   const dimRef = useRef<HTMLDivElement>(null)
   const vignetteRef = useRef<HTMLDivElement>(null)
-  const curtainLRef = useRef<HTMLDivElement>(null)
-  const curtainRRef = useRef<HTMLDivElement>(null)
-  const nightStage1Ref = useRef<HTMLDivElement>(null)
-  const nightStage2Ref = useRef<HTMLDivElement>(null)
-  const nightStage3Ref = useRef<HTMLDivElement>(null)
-  const nightStage4Ref = useRef<HTMLDivElement>(null)
-  const morningStage1Ref = useRef<HTMLDivElement>(null)
-  const morningStage2Ref = useRef<HTMLDivElement>(null)
-  const morningStage3Ref = useRef<HTMLDivElement>(null)
-  const morningCinema1Ref = useRef<HTMLDivElement>(null)
-  const morningCinema2Ref = useRef<HTMLDivElement>(null)
-  const morningCinema3Ref = useRef<HTMLDivElement>(null)
-  const morningCinema4Ref = useRef<HTMLDivElement>(null)
-  const nightCinema1Ref = useRef<HTMLDivElement>(null)
-  const nightCinema2Ref = useRef<HTMLDivElement>(null)
-  const nightCinema3Ref = useRef<HTMLDivElement>(null)
-  const nightCinema4Ref = useRef<HTMLDivElement>(null)
   const tlRef = useRef<any>(null)
 
-  const filterString = (s: LightState) =>
-    `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hueRotate}deg)`
-
   useEffect(() => {
-    const s = STATES.morning
-    gsap.set(warmRef.current, { opacity: s.warm })
-    gsap.set(skyMaskRef.current, { opacity: s.skyMask })
-    gsap.set(ambientRef.current, { opacity: s.ambient })
-    gsap.set(dimRef.current, { opacity: s.dim })
-    gsap.set(vignetteRef.current, { opacity: s.vignette })
-    gsap.set(curtainLRef.current, { xPercent: -100 })
-    gsap.set(curtainRRef.current, { xPercent: 100 })
-    gsap.set(nightStage1Ref.current, { opacity: 0 })
-    gsap.set(nightStage2Ref.current, { opacity: 0 })
-    gsap.set(nightStage3Ref.current, { opacity: 0 })
-    gsap.set(nightStage4Ref.current, { opacity: 0 })
-    gsap.set(morningStage1Ref.current, { opacity: 0 })
-    gsap.set(morningStage2Ref.current, { opacity: 0 })
-    gsap.set(morningStage3Ref.current, { opacity: 0 })
-    gsap.set(morningCinema1Ref.current, { opacity: 0 })
-    gsap.set(morningCinema2Ref.current, { opacity: 0 })
-    gsap.set(morningCinema3Ref.current, { opacity: 0 })
-    gsap.set(morningCinema4Ref.current, { opacity: 0 })
-    gsap.set(nightCinema1Ref.current, { opacity: 0 })
-    gsap.set(nightCinema2Ref.current, { opacity: 0 })
-    gsap.set(nightCinema3Ref.current, { opacity: 0 })
-    gsap.set(nightCinema4Ref.current, { opacity: 0 })
-    gsap.set(stageRef.current, { filter: filterString(s) })
+    const initial = SCENES.morning.visual
+    gsap.set(warmRef.current, { opacity: initial.warm })
+    gsap.set(skyMaskRef.current, { opacity: initial.skyMask })
+    gsap.set(ambientRef.current, { opacity: initial.ambient })
+    gsap.set(dimRef.current, { opacity: initial.dim })
+    gsap.set(vignetteRef.current, { opacity: initial.vignette })
+    gsap.set(stageRef.current, { filter: filterString(initial) })
 
     return () => tlRef.current?.kill()
   }, [])
 
-  const curtainL = (c: number) => -100 + c * 100
-  const curtainR = (c: number) => 100 - c * 100
-
-  const tweenLightsTo = (tl: any, target: number, duration: number) => {
-    const proxy = { v: lightProgressRef.current }
-    tl.to(proxy, { v: target, duration, ease: "power2.inOut", onUpdate: () => setLightProgress(Math.round(proxy.v)) }, 0)
-  }
-
-  const tweenKelvinTo = (tl: any, target: number, duration: number) => {
-    const proxy = { v: kelvinRef.current }
-    tl.to(proxy, { v: target, duration, ease: "power2.inOut", onUpdate: () => setKelvin(Math.round(proxy.v / 50) * 50) }, 0)
-  }
-
-  const runTransition = useCallback((target: Mode) => {
-    const from = prevMode.current
-    if (from === target) return
+  const runTransition = (target: Mode) => {
+    if (prevMode.current === target) return
 
     tlRef.current?.kill()
     setIsAnimating(true)
 
-    const to = STATES[target]
-    const D = 2.2
-    const ease = "power2.inOut"
-
-    const tl = gsap.timeline({
-      defaults: { ease, duration: D },
+    const scene = SCENES[target]
+    const visual = scene.visual
+    const duration = 2.4
+    const timeline = gsap.timeline({
+      defaults: { ease: "power2.inOut", duration },
       onComplete: () => setIsAnimating(false),
     })
 
-    const warmEl = warmRef.current
-    const skyEl = skyMaskRef.current
-    const ambEl = ambientRef.current
-    const dimEl = dimRef.current
-    const vigEl = vignetteRef.current
-    const stageEl = stageRef.current
-    const cLEl = curtainLRef.current
-    const cREl = curtainRRef.current
-    const finalFilter = filterString(to)
+    const lights = { value: lightProgressRef.current }
+    const temperature = { value: kelvinRef.current }
 
-    if (from === "morning" && target === "night") {
-      const s1El = nightStage1Ref.current
-      const s2El = nightStage2Ref.current
-      const s3El = nightStage3Ref.current
-      const s4El = nightStage4Ref.current
+    timeline
+      .to(warmRef.current, { opacity: visual.warm }, 0)
+      .to(skyMaskRef.current, { opacity: visual.skyMask }, 0)
+      .to(ambientRef.current, { opacity: visual.ambient }, 0)
+      .to(dimRef.current, { opacity: visual.dim }, 0)
+      .to(vignetteRef.current, { opacity: visual.vignette }, 0)
+      .to(stageRef.current, { filter: filterString(visual) }, 0)
+      .to(lights, {
+        value: scene.lighting,
+        onUpdate: () => {
+          const value = Math.round(lights.value)
+          lightProgressRef.current = value
+          setLightProgress(value)
+        },
+      }, 0)
+      .to(temperature, {
+        value: scene.kelvin,
+        onUpdate: () => {
+          const value = Math.round(temperature.value / 50) * 50
+          kelvinRef.current = value
+          setKelvin(value)
+        },
+      }, 0)
 
-      tl.set([s1El, s2El, s3El, s4El], { opacity: 0 }, 0)
-        .to(s1El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 0)
-        .to(s2El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(s3El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 4.8)
-        .to(s4El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 7.2)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.night, 10)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.night, 10)
-    }
-    else if (from === "night" && target === "morning") {
-      const m1El = morningStage1Ref.current
-      const m2El = morningStage2Ref.current
-      const m3El = morningStage3Ref.current
-
-      tl.set([m1El, m2El, m3El], { opacity: 0 }, 0)
-        .to(m1El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 0)
-        .to(m2El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(m3El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 4.8)
-        .set([nightStage1Ref.current, nightStage2Ref.current, nightStage3Ref.current, nightStage4Ref.current, m1El, m2El], { opacity: 0 }, 7.8)
-        .to(m3El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 7.8)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.morning, 10.8)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.morning, 10.8)
-    }
-    else if (from === "night" && target === "cinema") {
-      const c1El = nightCinema1Ref.current
-      const c2El = nightCinema2Ref.current
-      const c3El = nightCinema3Ref.current
-      const c4El = nightCinema4Ref.current
-
-      tl.set([c1El, c2El, c3El, c4El], { opacity: 0 }, 0)
-        .to(c1El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 0)
-        .to(c2El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(c3El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 4.8)
-        .to(c4El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 7.2)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.cinema, 10)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.cinema, 10)
-    }
-    else if (from === "cinema" && target === "night") {
-      const c1El = nightCinema1Ref.current
-      const c2El = nightCinema2Ref.current
-      const c3El = nightCinema3Ref.current
-      const c4El = nightCinema4Ref.current
-
-      tl.set(nightStage4Ref.current, { opacity: 1 }, 0)
-        .set([c1El, c2El, c3El, c4El], { opacity: 1 }, 0)
-        .set([morningCinema1Ref.current, morningCinema2Ref.current, morningCinema3Ref.current, morningCinema4Ref.current], { opacity: 0 }, 0)
-        .to(c4El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 0)
-        .to(c3El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(c2El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 4.8)
-        .to(c1El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 7.2)
-        .set([morningStage1Ref.current, morningStage2Ref.current, morningStage3Ref.current], { opacity: 0 }, 7.2)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.night, 10)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.night, 10)
-    }
-    else if (from === "morning" && target === "cinema") {
-      const c1El = morningCinema1Ref.current
-      const c2El = morningCinema2Ref.current
-      const c3El = morningCinema3Ref.current
-      const c4El = morningCinema4Ref.current
-
-      tl.set([c1El, c2El, c3El, c4El], { opacity: 0 }, 0)
-        .to(c1El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 0)
-        .to(c2El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(c3El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 4.8)
-        .to(c4El, { opacity: 1, duration: 3, ease: "power2.inOut" }, 7.2)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.cinema, 10)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.cinema, 10)
-    }
-    else if (from === "cinema" && target === "morning") {
-      const c1El = morningCinema1Ref.current
-      const c2El = morningCinema2Ref.current
-      const c3El = morningCinema3Ref.current
-      const c4El = morningCinema4Ref.current
-
-      tl.set([c1El, c2El, c3El, c4El], { opacity: 1 }, 0)
-        .set([nightCinema1Ref.current, nightCinema2Ref.current, nightCinema3Ref.current, nightCinema4Ref.current], { opacity: 0 }, 0)
-        .set([morningStage1Ref.current, morningStage2Ref.current, morningStage3Ref.current], { opacity: 0 }, 0)
-        .to(c4El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 0)
-        .to(c3El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 2.4)
-        .to(c2El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 4.8)
-        .to(c1El, { opacity: 0, duration: 3, ease: "power2.inOut" }, 7.2)
-        .set([nightStage1Ref.current, nightStage2Ref.current, nightStage3Ref.current, nightStage4Ref.current], { opacity: 0 }, 7.2)
-
-      tweenLightsTo(tl, LIGHTS_STEADY.morning, 10)
-      tweenKelvinTo(tl, KELVIN_PER_MODE.morning, 10)
-    }
-
-    tlRef.current = tl
+    tlRef.current = timeline
     prevMode.current = target
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }
 
   const handleSelect = (next: Mode) => {
     if (next === mode) return
@@ -347,33 +241,30 @@ export function ExperienceDemo() {
     runTransition(next)
   }
 
-  const currentButton = BUTTONS.find((b) => b.id === mode)!
+  const currentButton = SCENES[mode]
 
   const lightRGB = kelvinToRGB(kelvin)
   const warmBg = buildWarmOverlay(lightRGB.r, lightRGB.g, lightRGB.b)
   const ambientBg = buildAmbient(lightRGB.r, lightRGB.g, lightRGB.b)
   const spotlightsBg = buildSpotlights(lightRGB.r, lightRGB.g, lightRGB.b)
-
-  const spotlightOpacity = mode === "morning" ? 0.55 : mode === "night" ? 0.75 : 0.5
+  const spotlightOpacity = currentButton.visual.spotlights
 
   const kelvinLabel = (() => {
-    if (kelvin <= 3000) return "Warm"
-    if (kelvin <= 3800) return "Soft Warm"
-    if (kelvin <= 5000) return "Neutral"
-    if (kelvin <= 5800) return "Cool White"
+    if (kelvin <= 3000) return "Warm white"
+    if (kelvin <= 3800) return "Soft warm"
+    if (kelvin <= 5000) return "Neutral white"
+    if (kelvin <= 5800) return "Cool white"
     return "Daylight"
   })()
 
-  const lightsValue = lightProgress === 0 ? "Off" : `${lightProgress}%`
-
   const status = {
-    lighting: lightsValue,
-    curtains: mode === "morning" ? "Open" : mode === "night" ? "Partial" : "Closed",
-    av: mode === "cinema" ? "ON" : mode === "night" ? "Standby" : "Off",
-    hvac: "20°C",
+    lighting: lightProgress === 0 ? "Off" : `${lightProgress}%`,
+    curtains: currentButton.curtains,
+    av: currentButton.entertainment,
+    hvac: `${currentButton.climate}°C target`,
   }
 
-  const modeBadgeLabel = `${currentButton.label.toUpperCase()} MODE ACTIVE`
+  const modeBadgeLabel = `${currentButton.label.toUpperCase()} SCENE ACTIVE`
 
   return (
     <section id="experience" className="py-32 lg:py-40 bg-foreground text-background">
@@ -390,29 +281,6 @@ export function ExperienceDemo() {
               <Image src={BASE_IMAGE} alt="Luxury living room" fill priority sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
             </div>
 
-            <div ref={nightStage1Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/night-1.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightStage2Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/night-2.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightStage3Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/night-3.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightStage4Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/night-4.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-
-            <div ref={morningStage1Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/morning-1.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={morningStage2Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/morning-2.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={morningStage3Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)" }}>
-              <Image src="/images/morning-3.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-
             <div ref={warmRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: warmBg, mixBlendMode: "overlay", opacity: 0, willChange: "opacity", transition: "background 180ms ease-out" }} />
             <div ref={skyMaskRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: SKY_MASK, opacity: 0, willChange: "opacity" }} />
             <div ref={ambientRef} aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: ambientBg, mixBlendMode: "screen", opacity: 0, willChange: "opacity", transition: "background 180ms ease-out" }} />
@@ -421,37 +289,10 @@ export function ExperienceDemo() {
 
             <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: spotlightsBg, mixBlendMode: "overlay", opacity: spotlightOpacity, transition: "background 180ms ease-out, opacity 600ms ease-out", zIndex: 19 }} />
 
-            <div ref={curtainLRef} aria-hidden className="absolute top-0 bottom-0 left-0 pointer-events-none" style={{ width: "52%", background: CURTAIN_FABRIC, boxShadow: "inset -40px 0 60px -20px rgba(0,0,0,0.6), inset -2px 0 0 0 rgba(255,240,210,0.3), 4px 0 12px rgba(0,0,0,0.4)", transform: "translateX(-100%)", willChange: "transform", zIndex: 20 }} />
-            <div ref={curtainRRef} aria-hidden className="absolute top-0 bottom-0 right-0 pointer-events-none" style={{ width: "52%", background: CURTAIN_FABRIC, boxShadow: "inset 40px 0 60px -20px rgba(0,0,0,0.6), inset 2px 0 0 0 rgba(255,240,210,0.3), -4px 0 12px rgba(0,0,0,0.4)", transform: "translateX(100%)", willChange: "transform", zIndex: 20 }} />
-
-            <div ref={morningCinema1Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/morning-cinema-1.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={morningCinema2Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/morning-cinema-2.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={morningCinema3Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/morning-cinema-3.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={morningCinema4Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/morning-cinema-4.webp" alt="Living room in cinema mode" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightCinema1Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/night-cinema-1.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightCinema2Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/night-cinema-2.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightCinema3Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/night-cinema-3.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
-            <div ref={nightCinema4Ref} className="absolute inset-0" style={{ opacity: 0, willChange: "opacity", transform: "translateZ(0)", zIndex: 25 }}>
-              <Image src="/images/night-cinema-4.webp" alt="Living room in cinema mode" fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover select-none" draggable={false} />
-            </div>
 
             <div className="absolute bottom-24 right-6 pointer-events-none z-30" key={`badge-${mode}`}>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 animate-in fade-in slide-in-from-bottom-1 duration-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#d8c6a5] animate-pulse" />
                 <span className="text-[10px] tracking-[0.18em] font-medium text-white/90">{modeBadgeLabel}</span>
               </div>
             </div>
@@ -462,7 +303,7 @@ export function ExperienceDemo() {
                 <StatusRow icon="lighting" label="Living Lights" value={status.lighting} />
                 <StatusRow icon="curtains" label="Curtains" value={status.curtains} />
                 <StatusRow icon="av" label="AV" value={status.av} />
-                <StatusRow icon="hvac" label="HVAC" value={status.hvac} />
+                <StatusRow icon="hvac" label="Climate target" value={status.hvac} />
               </div>
             </div>
 
@@ -474,15 +315,15 @@ export function ExperienceDemo() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-8" role="tablist" aria-label="Lighting mode">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-8" role="group" aria-label="Choose a home scene">
             {BUTTONS.map((b) => {
               const Icon = b.icon
               const active = mode === b.id
               return (
                 <button
                   key={b.id}
-                  role="tab"
-                  aria-selected={active}
+                  type="button"
+                  aria-pressed={active}
                   onClick={() => handleSelect(b.id)}
                   className={[
                     "flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300",
@@ -501,12 +342,13 @@ export function ExperienceDemo() {
             {isAnimating ? "transitioning…" : `${currentButton.label.toLowerCase()} — steady`}
           </p>
 
-          {/* ═══════════ Ambient Temperature — READ-ONLY feedback display ═══════════ */}
+          <p className="mt-3 text-center text-xs text-background/40">Website simulation · No hardware connected</p>
+
           <div className="mt-10 max-w-md mx-auto">
             <div className="rounded-2xl bg-background/5 border border-background/10 backdrop-blur-md p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] uppercase tracking-[0.18em] text-background/70">
-                  Ambient Temperature
+                  Light Colour Temperature
                 </span>
                 <span className="text-sm tabular-nums text-background">
                   {kelvinLabel} <span className="text-background/60">{kelvin}K</span>
@@ -526,7 +368,7 @@ export function ExperienceDemo() {
                 value={kelvin}
                 readOnly
                 tabIndex={-1}
-                aria-label="Ambient temperature in Kelvin (read-only)"
+                aria-label="Light colour temperature in Kelvin (read-only)"
                 aria-readonly="true"
                 onChange={() => { /* read-only: ignore any value change */ }}
                 className="w-full h-2 rounded-full appearance-none cursor-default pointer-events-none opacity-100"
