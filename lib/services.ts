@@ -5,6 +5,11 @@ export type ServiceCapability = {
   description: string
 }
 
+export type ServiceStage = {
+  title: string
+  description: string
+}
+
 export type Service = {
   slug: string
   title: string
@@ -15,6 +20,8 @@ export type Service = {
   cardDescription: string
   image: string
   imageAlt: string
+  supportingImage?: string
+  supportingImageAlt?: string
   metaTitle: string
   metaDescription: string
   capabilities: ServiceCapability[]
@@ -22,6 +29,8 @@ export type Service = {
   technologies: string[]
   architectureCopy: string
   workCopy: string
+  deliveryStages: ServiceStage[]
+  deliverables: string[]
   related: string[]
   projectReference?: boolean
 }
@@ -34,43 +43,55 @@ export const SERVICES: Service[] = [
     eyebrow: "Light, considered",
     headline: "Lighting that responds to architecture and life.",
     summary:
-      "Lighting shapes how a room feels throughout the day. We plan its control alongside the architecture, luminaires and rhythms of the people who live there, bringing practical operation and expressive scenes together.",
+      "Lighting shapes how a room feels throughout the day. We plan circuits, zones and control around the architecture, selected luminaires and daily routines, bringing practical operation and expressive scenes together.",
     cardDescription:
       "Architectural lighting control, considered scenes and carefully coordinated dimming for the way a home is lived in.",
-    image: "/images/project-lighting.png",
-    imageAlt: "A contemporary residence and garden illuminated at dusk",
+    image: "/images/design-integration.webp",
+    imageAlt: "A wall-mounted residential control interface integrated with a refined interior finish",
     metaTitle: "Smart Lighting & Lighting Control in Mumbai | Supreme Domotics",
     metaDescription:
-      "Explore architectural lighting control by Supreme Domotics in Mumbai, including KNX, DALI and Casambi integration, considered scenes and residential lighting design.",
+      "Plan residential lighting circuits, KNX, DALI and Casambi control, dimming, scenes and keypads with Supreme Domotics in Mumbai.",
     capabilities: [
       {
-        title: "Architectural lighting control",
+        title: "Circuits, zones and load planning",
         description:
-          "A considered control plan for the luminaires, circuits and spaces that make up a residence, coordinated with the wider electrical design.",
+          "We translate the lighting intent into workable circuits and room-by-room zones, checking proposed loads against the selected control channels and equipment capacity.",
       },
       {
-        title: "Scenes for everyday living",
+        title: "Luminaire and dimmer compatibility",
         description:
-          "Set welcoming, reading, entertaining and evening moods with intuitive scenes that bring several lighting zones together in a single action.",
+          "LED drivers, dimmers and control gear are checked together for supported dimming behaviour and project requirements before the control approach is finalised.",
       },
       {
-        title: "Flexible light quality",
+        title: "KNX, DALI and Casambi architecture",
         description:
-          "Dimming and tunable-white control can be included where the selected luminaires and control equipment support it. Human Centric Lighting applications are considered where they suit the brief.",
+          "KNX provides a wired bus-based option; DALI supports individually addressed control gear and configurable groups; Casambi provides a wireless approach. The fit depends on the build stage, wiring strategy, luminaires and maintenance brief.",
       },
       {
-        title: "Clear, considered interfaces",
+        title: "Scenes, tunable white and keypads",
         description:
-          "Keypads and other interfaces are planned around the way a room is used, with lighting controls able to sit alongside other home systems where appropriate.",
+          "Scenes, keypad locations and control points are planned around how each room is entered and used. Tunable white and Human Centric Lighting applications can be considered where the selected luminaires and control system support them.",
       },
     ],
     technologyIntro:
-      "The right control approach depends on the lighting design, selected equipment and project requirements. We work with wired and wireless options and define how each will operate within the wider home.",
-    technologies: ["KNX lighting control", "DALI integration", "Casambi wireless control", "Scene-based control"],
+      "Lighting control starts with the actual fixture, driver and circuit—not a protocol label. We review dimming method and load limits, then define KNX switching or dimming, DALI addressing and grouping, or a Casambi wireless layout as appropriate. Wired and wireless strategies can suit different project stages; neither is assumed to be right for every home.",
+    technologies: ["KNX wired lighting control", "DALI addressing and groups", "Casambi wireless control", "Scenes and supported tunable white"],
     architectureCopy:
-      "Lighting control works best when it is part of the design conversation early. We coordinate with interior designers, lighting designers, luminaire suppliers and electrical teams so that switching, dimming, keypads and scenes make sense in the finished spaces.",
+      "We coordinate the lighting control philosophy with lighting designers, interior designers and electrical contractors. Early decisions on circuits, switching locations, keypad heights and luminaire drivers help avoid conflicts with joinery, finishes and the electrical installation.",
     workCopy:
-      "We begin by understanding the lighting intent and daily routines, then map the zones, control points and scenes. After equipment coordination and installation, we programme, test and commission the system with the project team and homeowner.",
+      "The work moves from lighting intent and reflected plans into zone and circuit logic, equipment coordination and keypad placement. During installation we verify wiring and control gear, then address and group DALI devices where applicable, programme scenes, test dimming behaviour and guide the homeowner through the interfaces.",
+    deliveryStages: [
+      { title: "Read the lighting intent", description: "Review room use, reflected plans, fixture selections and the electrical design with the project team." },
+      { title: "Resolve circuits and control", description: "Set zones, loads, dimming methods, system architecture and keypad locations against selected equipment." },
+      { title: "Install and programme", description: "Coordinate installation, verify compatible control gear, then configure groups, scenes and interfaces." },
+      { title: "Tune and hand over", description: "Check the experience in the finished rooms, refine supported scenes and explain everyday operation." },
+    ],
+    deliverables: [
+      "Lighting control philosophy and system approach",
+      "Lighting zone, circuit and control-channel schedules",
+      "Keypad and control-point schedule",
+      "DALI addressing, group and scene schedules where applicable",
+    ],
     related: ["home-automation", "system-integration", "outdoor-automation"],
     projectReference: true,
   },
@@ -81,43 +102,55 @@ export const SERVICES: Service[] = [
     eyebrow: "A home in concert",
     headline: "One home. Intelligently connected.",
     summary:
-      "A well-automated home feels simple to use. We bring supported systems into a coherent control experience shaped around the property, the people who live there and the way each space is used.",
+      "A well-automated home feels simple to use because the engineering behind it is considered. We plan how selected systems communicate, how people control them and how the environment responds across rooms and routines.",
     cardDescription:
       "A considered control experience for lighting, shading, climate, entertainment and other supported home systems.",
-    image: "/images/project-living.png",
-    imageAlt: "An elegant residence interior designed for relaxed everyday living",
+    image: "/images/hero-villa.webp",
+    imageAlt: "A contemporary villa with illuminated living spaces and landscaped grounds at dusk",
     metaTitle: "Whole-Home Automation in Mumbai | Supreme Domotics",
     metaDescription:
-      "Supreme Domotics designs whole-home automation for luxury residences in Mumbai, bringing supported lighting, shading, climate, AV and security systems together.",
+      "Supreme Domotics designs whole-home automation for luxury residences in Mumbai, coordinating supported lighting, shading, climate, AV and security systems.",
     capabilities: [
       {
-        title: "Centralised control",
+        title: "A coherent system architecture",
         description:
-          "Bring selected lighting, motorised curtains and blinds, climate, entertainment, security, gates and outdoor systems into a clear, unified interface.",
+          "We map which systems need to communicate, where control should be centralised and where distributed devices make more sense, based on the property and the selected equipment.",
       },
       {
-        title: "Scenes, schedules and events",
+        title: "Room-wise control across systems",
         description:
-          "Create scenes that coordinate supported systems and schedules or event-based actions that suit the household’s routines and the home’s operating needs.",
+          "Lighting, curtains and blinds, climate and HVAC, entertainment and AV, security and access, gates and selected outdoor systems can be coordinated where their interfaces support it.",
       },
       {
-        title: "Interfaces that feel natural",
+        title: "Scenes, schedules and interfaces",
         description:
-          "Keypads, touch interfaces and mobile control are arranged to make everyday actions easy to find, with feedback that helps people understand the system’s state.",
+          "Scenes and scheduled actions are shaped around household routines, then presented through appropriately placed keypads, touch interfaces and mobile control.",
       },
       {
-        title: "Reliable operation",
+        title: "State feedback and maintainability",
         description:
-          "Clear system architecture, suitable equipment selection, two-way feedback where supported, and thoughtful commissioning help make the experience dependable.",
+          "Where equipment provides two-way state feedback, the interface can reflect what a system is doing. Clear boundaries, commissioning records and a considered handover support ongoing serviceability.",
       },
     ],
     technologyIntro:
-      "Automation is not a promise that every device or protocol can work with every other one. We establish compatibility against the selected equipment, available interfaces and the actual requirements of the project.",
-    technologies: ["Lighting and scenes", "Curtains and blinds", "Climate and AV", "Security and access"],
+      "Whole-home automation is more than a mobile application. It is the agreed relationship between systems, control points, operating logic and the feedback available from each device. We verify integrations against the actual products and interfaces, then design a practical experience for the household.",
+    technologies: ["Lighting and shading", "Climate and HVAC", "AV, security and access", "Scenes and supported system feedback"],
     architectureCopy:
-      "Automation planning starts alongside electrical, interior and services coordination. We map user journeys, control locations and system dependencies early, so technology supports the architecture instead of competing with it.",
+      "Automation is coordinated with architecture, interiors, electrical and mechanical services. We map room-by-room functions, equipment dependencies and control locations early so that keypads, sensors, motorised treatments and service access fit the finished spaces.",
     workCopy:
-      "From the first brief, we define what should be connected and how it should behave. The agreed design becomes a coordinated installation and programming plan, followed by system testing, homeowner handover and ongoing support.",
+      "We agree the rooms and functions in scope, map the system boundaries and user journeys, then coordinate equipment and interfaces with the other project teams. Installation is followed by programming, scene and state checks, commissioning and a handover matched to the homeowner’s everyday use.",
+    deliveryStages: [
+      { title: "Map the residence", description: "Agree room-by-room requirements, household routines and systems proposed for integration." },
+      { title: "Define the architecture", description: "Set control boundaries, interfaces, equipment dependencies and how people will interact with the home." },
+      { title: "Coordinate and configure", description: "Align wiring, devices and third-party interfaces, then build the agreed scenes and automations." },
+      { title: "Commission the experience", description: "Test supported commands and feedback, explain the interfaces and document the agreed system scope." },
+    ],
+    deliverables: [
+      "System architecture overview and room-wise automation scope",
+      "Control-point, interface and equipment schedules",
+      "Scene, schedule and automation logic schedules",
+      "Commissioning and homeowner handover records",
+    ],
     related: ["smart-lighting-control", "system-integration", "networking-infrastructure"],
   },
   {
@@ -131,39 +164,53 @@ export const SERVICES: Service[] = [
     cardDescription:
       "Immersive cinema, considered audio and intuitive AV control, planned around the room and the experience.",
     image: "/images/home-theatre.webp",
-    imageAlt: "A dedicated residential cinema with carefully placed seating and projection",
+    imageAlt: "A dedicated residential cinema room with projection, acoustic treatment and arranged seating",
+    supportingImage: "/images/designer-speakers.webp",
+    supportingImageAlt: "Architectural loudspeakers arranged within a contemporary residential interior",
     metaTitle: "Home Theatre & Audio Visual in Mumbai | Supreme Domotics",
     metaDescription:
-      "Design-led home theatre and AV integration in Mumbai, including Dolby Atmos, projection, multi-room audio and entertainment control by Supreme Domotics.",
+      "Design-led home theatre and AV integration in Mumbai, including room planning, Dolby Atmos layouts, projection, multi-room audio and control.",
     capabilities: [
       {
-        title: "Dedicated home theatre",
+        title: "Room, seating and sightlines",
         description:
-          "A cinema experience shaped around room proportions, seating, speaker layout, display or projection, equipment and the intended listening experience.",
+          "Room dimensions, seating rows, viewing distance, screen size and sightlines are considered together so the display and seating plan suit the space.",
       },
       {
-        title: "Immersive audio",
+        title: "Speaker layout and bass planning",
         description:
-          "Dolby Atmos system design, speaker and subwoofer selection, placement and acoustic coordination are considered together, not as separate decisions.",
+          "Speaker positions and channel configuration—including Dolby Atmos where specified—are coordinated with ceiling and wall construction. Subwoofer choice and placement are considered with the room and acoustic plan.",
       },
       {
-        title: "Audio throughout the home",
+        title: "Acoustics, display and projection",
         description:
-          "Multi-room audio, architectural and invisible speakers, living-room entertainment and outdoor audio can be planned as part of the wider AV brief.",
+          "Projection or display selection is aligned with the screen, throw distance, ambient light and viewing brief. Acoustic treatment is coordinated with the architect and interior designer where it forms part of the project.",
       },
       {
-        title: "Control that disappears into the experience",
+        title: "Equipment, audio zones and control",
         description:
-          "AV equipment and sources can be integrated with the home’s control interface where supported, so the system is straightforward to use day to day.",
+          "Rack access, ventilation, source distribution and connectivity are planned alongside multi-room audio, architectural or invisible speakers, outdoor audio and supported AV control integration.",
       },
     ],
     technologyIntro:
-      "Display and projection choices, source equipment, loudspeakers and control are selected for the room and brief. Integration is confirmed against equipment capabilities and the system architecture.",
-    technologies: ["Dolby Atmos", "Projection and displays", "Multi-room audio", "Architectural speakers"],
+      "Cinema performance depends on the room as much as the equipment. We coordinate the speaker and subwoofer plan, display or projection, sources, rack environment and control against the architecture and the intended use, then confirm each proposed integration with the selected equipment.",
+    technologies: ["Dolby Atmos layouts where specified", "Projection and displays", "Multi-room audio", "Architectural and outdoor speakers"],
     architectureCopy:
-      "Room acoustics, speaker positions, screen sightlines, seating, ventilation and equipment access all influence the result. We coordinate with architects and interior teams early, including acoustic treatment where it is part of the design.",
+      "Successful cinema planning brings acoustics, architecture, interiors, seating and equipment selection into the same conversation. Early coordination helps reserve speaker positions, screen sightlines, cable routes, equipment access and any acoustic treatment before finishes are fixed.",
     workCopy:
-      "We first understand how the room should feel and be used. The design then brings together acoustics, layout, equipment and control before installation, calibration, commissioning and a practical handover.",
+      "We begin with the room, seating and listening brief, then coordinate a speaker and display plan with the design team. The equipment schedule and rack connectivity inform installation; commissioning then checks source routing, speaker configuration and control, with calibration records included where they are part of the agreed scope.",
+    deliveryStages: [
+      { title: "Study the room", description: "Review dimensions, construction, seating, viewing needs and the acoustic brief." },
+      { title: "Set the AV layout", description: "Coordinate speaker channels, screen or projection, subwoofer position, rack and connectivity." },
+      { title: "Install with the build", description: "Align equipment, cable routes, ventilation, access and finishes with site and interior teams." },
+      { title: "Configure and calibrate", description: "Test sources, routing, speaker operation and control; document calibration where included in scope." },
+    ],
+    deliverables: [
+      "AV system schematic and equipment schedule",
+      "Speaker, channel and subwoofer layout",
+      "Display, screen and projection planning",
+      "Rack, connectivity and commissioning records as scoped",
+    ],
     related: ["home-automation", "networking-infrastructure", "system-integration"],
   },
   {
@@ -177,85 +224,109 @@ export const SERVICES: Service[] = [
     cardDescription:
       "Surveillance, detection and access solutions designed around the property and its everyday use.",
     image: "/images/security-camera.webp",
-    imageAlt: "A discreet security camera installed in a contemporary residence",
+    imageAlt: "A discreet dome-style surveillance camera mounted within a contemporary interior",
     metaTitle: "Residential Security & Access Control in Mumbai | Supreme Domotics",
     metaDescription:
-      "Plan CCTV, intrusion detection, smart entry, gate automation and integrated security for luxury homes in Mumbai with Supreme Domotics.",
+      "Plan CCTV coverage, intrusion detection, video door phones, smart entry and gate integration for luxury residences in Mumbai.",
     capabilities: [
       {
-        title: "Surveillance and detection",
+        title: "CCTV views and recording",
         description:
-          "CCTV, video surveillance, intrusion detection and wired or wireless sensors are planned for the property’s layout, operating requirements and privacy considerations.",
+          "Camera positions and fields of view are reviewed against entrances, circulation and key areas to identify coverage gaps and avoid unnecessary views. Recording capacity and retention are planned against the system brief.",
       },
       {
-        title: "Entry and access",
+        title: "Intrusion detection",
         description:
-          "Smart entry, access control, video door phones and gate automation can support a considered arrival experience for residents and visitors.",
+          "Wired or wireless door and window contacts, motion detection and perimeter devices are selected and positioned for the building layout and how the property is occupied.",
       },
       {
-        title: "Perimeter planning",
+        title: "Entry and perimeter coordination",
         description:
-          "Perimeter protection and electric fencing integration may be considered where appropriate to the site, local requirements and the broader security plan.",
+          "Video door phones, smart entry, access control and gate interfaces are considered together, alongside perimeter protection and the movement of residents, visitors and service teams.",
       },
       {
-        title: "Useful notifications",
+        title: "Privacy and useful alerts",
         description:
-          "Security alerts and selected integrations can help owners understand events and coordinate supported systems, while keeping the system’s state clear.",
+          "User permissions, camera viewing areas, notifications and supported automation links are defined with privacy and day-to-day operation in mind. No security system guarantees prevention of intrusion.",
       },
     ],
     technologyIntro:
-      "The final design depends on the site, equipment capabilities, connectivity and the level of integration required. No system can guarantee that an intrusion will be prevented.",
-    technologies: ["CCTV and video surveillance", "Intrusion detection", "Video door phones", "Access and gate control"],
+      "Surveillance, detection and access serve different purposes, so we plan their coverage and operation together rather than treating one camera or sensor as a complete security strategy. Recording, storage, notifications and integrations are confirmed against the selected equipment and project requirements.",
+    technologies: ["CCTV and recording", "Wired or wireless detection", "Video door phones and access", "Gate and perimeter interfaces"],
     architectureCopy:
-      "We coordinate camera views, sensor positions, access points and equipment locations with the architecture, landscape, electrical and network plans. Privacy, service access and day-to-day usability remain part of the discussion.",
+      "Camera views, sensor positions, door hardware, gate control and equipment locations are coordinated with architecture, landscape, electrical and network plans. We also consider cable routes, service access, privacy boundaries and how authorised users will manage access.",
     workCopy:
-      "We review the property and its requirements, develop a coordinated security and access plan, then oversee installation and integration. Commissioning checks operation and notifications, followed by a clear handover to the people who will use it.",
+      "A property review establishes the intended coverage, entry points, users and notification needs. The agreed system plan guides installation and configuration; commissioning checks views, detection zones, recording, access functions and the notifications included in scope before user permissions are handed over.",
+    deliveryStages: [
+      { title: "Review the property", description: "Map approaches, entry points, occupancy patterns, privacy needs and existing infrastructure." },
+      { title: "Plan coverage and access", description: "Coordinate camera fields of view, sensor locations, recording and authorised entry." },
+      { title: "Coordinate installation", description: "Align devices, power, cabling, network connections and gate interfaces with site teams." },
+      { title: "Test and hand over", description: "Check views, detection, recording, permissions and supported alerts with the users." },
+    ],
+    deliverables: [
+      "Camera location and coverage plan",
+      "Sensor and access-control location schedules",
+      "Security architecture and recording/storage schedule",
+      "Testing and commissioning checklist",
+    ],
     related: ["networking-infrastructure", "home-automation", "outdoor-automation"],
   },
   {
     slug: "networking-infrastructure",
     title: "Networking & Digital Infrastructure",
-    shortTitle: "Networking & WiFi",
+    shortTitle: "Networking & Wi-Fi",
     eyebrow: "The foundation beneath it all",
     headline: "The invisible foundation of a connected home.",
     summary:
-      "The network is the quiet infrastructure behind connected living. Careful planning helps provide the coverage, capacity and separation that automation, audio visual and security systems depend on.",
+      "A dependable network is foundational to connected living. We plan wired backbone, wireless coverage, capacity and equipment environments around the property and the systems that rely on them—without assuming every home needs the same topology.",
     cardDescription:
       "Structured connectivity, thoughtful Wi-Fi coverage and network infrastructure planned for connected homes.",
     image: "/images/architecture-plans.webp",
-    imageAlt: "Architectural plans used to coordinate a residence’s digital infrastructure",
+    imageAlt: "An architect reviewing residential plans at a table in a modern studio",
     metaTitle: "Home Networking & Wi-Fi in Mumbai | Supreme Domotics",
     metaDescription:
-      "Supreme Domotics plans structured networks, Wi-Fi coverage, switching, routing and connected infrastructure for luxury homes in Mumbai.",
+      "Supreme Domotics plans structured cabling, Wi-Fi coverage, switching, routing and connected-home infrastructure for residences in Mumbai.",
     capabilities: [
       {
-        title: "Structured connectivity",
+        title: "Structured cabling and topology",
         description:
-          "Wired and wireless connectivity is planned around the residence, its equipment and the systems that need dependable access across each space.",
+          "We plan the wired backbone, cable routes, terminations, patch panels and network topology around rooms, equipment and likely service paths.",
       },
       {
-        title: "Wi-Fi coverage planning",
+        title: "Wi-Fi coverage and capacity",
         description:
-          "Coverage is considered across large residences and estates, with attention to building materials, outdoor areas, access point placement and expected use.",
+          "Access-point locations are considered against property size, construction materials, outdoor areas, device density and expected usage—not just floor area.",
       },
       {
-        title: "A considered equipment environment",
+        title: "Switching, routing and PoE",
         description:
-          "Network racks, switching and routing are organised for serviceability and capacity, with enterprise-grade equipment where the project calls for it.",
+          "Network equipment and power-over-Ethernet capacity are sized to connected devices and their requirements, including cameras and access points where appropriate.",
       },
       {
-        title: "Segmentation and ongoing care",
+        title: "Segmentation and serviceability",
         description:
-          "Network segmentation can help organise different classes of devices. Monitoring and troubleshooting support a clearer view of network health over time.",
+          "VLANs and separate zones for automation, AV, CCTV or general users may be appropriate depending on scale and operating requirements. Rack layout, UPS, ventilation, internet failover and monitoring are considered where needed.",
       },
     ],
     technologyIntro:
-      "Network architecture is sized to the property and the systems it needs to support. Segmentation, equipment and monitoring choices are based on the project’s security, performance and maintenance requirements.",
-    technologies: ["Structured cabling", "Professional Wi-Fi", "Switching and routing", "Network segmentation"],
+      "The right network design depends on property size, connected-device load and the systems in scope. We consider wired and wireless capacity, switching and routing, PoE, equipment power and ventilation, optional internet failover, monitoring and troubleshooting. Segmentation is applied when it serves a clear operational or security purpose.",
+    technologies: ["Structured cabling and patching", "Wi-Fi access-point planning", "Switching, routing and PoE", "Segmentation and monitoring where required"],
     architectureCopy:
-      "A dependable network begins with early coordination: cable pathways, rack locations, power, ventilation and access for future service. We work with the project team to place infrastructure where it can perform and remain maintainable.",
+      "Network decisions need to happen before walls and ceilings close. We coordinate cable pathways, rack location, patching, power, UPS capacity and ventilation with the architect, electrical contractor and other system teams so infrastructure remains accessible and serviceable.",
     workCopy:
-      "We assess the property, usage and connected systems, then produce a coverage and infrastructure plan. Installation is followed by configuration, coverage checks, integration testing and guidance for ongoing monitoring and troubleshooting.",
+      "We establish property coverage and device requirements, develop the topology and rack approach, then coordinate cabling and equipment with site teams. Configuration is followed by wired and wireless checks, system integration testing, documentation and guidance for monitoring and fault finding.",
+    deliveryStages: [
+      { title: "Survey coverage and demand", description: "Review plans, construction, connected systems, device counts and internet requirements." },
+      { title: "Design the backbone", description: "Set topology, cable routes, rack, switching, access-point locations and any segmentation." },
+      { title: "Build and configure", description: "Coordinate terminations, equipment, PoE, power, UPS and ventilation for the agreed design." },
+      { title: "Test and document", description: "Check wired links and coverage, resolve issues and record the network for future service." },
+    ],
+    deliverables: [
+      "Network topology diagram and equipment schedule",
+      "Structured cabling and patch-panel schedule",
+      "Rack layout and access-point placement plan",
+      "VLAN/addressing plan and test records where applicable",
+    ],
     related: ["home-automation", "home-theatre-av", "security-access-control"],
   },
   {
@@ -265,43 +336,57 @@ export const SERVICES: Service[] = [
     eyebrow: "Engineering a coherent whole",
     headline: "Different technologies. One coherent experience.",
     summary:
-      "A unified experience depends on sound engineering behind the interface. Supreme Domotics works as the design and integration partner, coordinating supported technologies without claiming to manufacture the systems themselves.",
+      "A unified experience depends on sound engineering behind the interface. Supreme Domotics works as the system design and integration partner, coordinating supported technologies without claiming to manufacture them or promising universal compatibility.",
     cardDescription:
       "Engineering and integration that brings supported home technologies into a clear, maintainable control experience.",
-    image: "/images/design-integration.webp",
-    imageAlt: "Technology plans coordinated with the design of a contemporary home",
+    image: "/images/showroom.webp",
+    imageAlt: "A residential technology experience space with several wall-mounted control interfaces",
+    supportingImage: "/images/design-integration.webp",
+    supportingImageAlt: "A close view of a wall-mounted residential control panel set into a refined interior finish",
     metaTitle: "Smart Home System Integration in Mumbai | Supreme Domotics",
     metaDescription:
-      "Supreme Domotics engineers supported KNX, DALI, Casambi, AV and security integrations into coherent, maintainable home control systems in Mumbai.",
+      "Supreme Domotics engineers supported KNX, DALI, Casambi, Zigbee, Matter and API integrations into maintainable residential control systems in Mumbai.",
     capabilities: [
       {
-        title: "Protocol and gateway integration",
+        title: "Compatibility before commitment",
         description:
-          "KNX, DALI, Casambi, Zigbee and Matter may be integrated where supported by the selected products, gateways and project requirements.",
+          "We verify the actual product, firmware or interface, gateway and supported functions before defining what can be integrated. Protocol names alone do not establish compatibility.",
       },
       {
-        title: "Cross-system coordination",
+        title: "Protocols, gateways and interfaces",
         description:
-          "Lighting, AV, entertainment, security and access systems are brought together through a clearly defined control and integration architecture.",
+          "KNX, DALI, Casambi, Zigbee and Matter may be connected where the chosen devices and gateways support the required functions. API or other interface integration is considered when available and suitable.",
       },
       {
-        title: "A clear user experience",
+        title: "Commands, feedback and point mapping",
         description:
-          "Unified interfaces are designed around meaningful actions, with two-way communication and state feedback included where the connected equipment supports it.",
+          "We map device points and functions, define command handling and document state feedback where the system exposes it, then shape a unified interface around useful homeowner actions.",
       },
       {
-        title: "Commissioning and maintainability",
+        title: "Commissioning and diagnostics",
         description:
-          "System diagnostics, commissioning and troubleshooting help make the installation understandable and supportable beyond the initial handover.",
+          "Integration testing checks the agreed functions across system boundaries. Diagnostics, troubleshooting and clear documentation help the project team maintain the installation after handover.",
       },
     ],
     technologyIntro:
-      "Interoperability is established system by system. We verify supported functions, interfaces and gateways, then document how the components communicate and what feedback is available.",
-    technologies: ["KNX and DALI", "Casambi", "Zigbee and Matter where supported", "AV and security interfaces"],
+      "Integration is verified against the exact product, gateway, interface and functions required. We assess KNX, DALI and Casambi systems, and Zigbee, Matter or API connections where supported, then define how commands, status feedback and faults are handled across system boundaries.",
+    technologies: ["KNX and DALI", "Casambi", "Zigbee and Matter where supported", "Gateway, API and device interfaces where available"],
     architectureCopy:
-      "Good integration begins with an agreed architecture: clear system boundaries, communication paths, control responsibilities and equipment locations. We collaborate with project teams and technology manufacturers as the engineering and integration partner.",
+      "The integration architecture sets system boundaries, communication paths, gateway locations, control responsibilities and the points that need to be exposed. We coordinate with architects, consultants, electrical teams and technology suppliers as the project’s design and integration partner.",
     workCopy:
-      "We document the system intent and interfaces, validate equipment compatibility, then coordinate programming and integration. Testing, diagnostics and commissioning confirm expected behaviour before a maintainable handover.",
+      "We begin with an interface and compatibility review, document the proposed architecture and map points to homeowner functions. After equipment coordination and installation, each agreed command and feedback path is tested, faults are investigated and the resulting control and integration records are handed over.",
+    deliveryStages: [
+      { title: "Inventory the systems", description: "List devices, protocols, gateways, product interfaces and the functions the project needs." },
+      { title: "Verify and map", description: "Confirm supported capabilities, define system boundaries and map points to user actions." },
+      { title: "Implement the interfaces", description: "Coordinate gateways and connections, configure commands and expose feedback where available." },
+      { title: "Test and document", description: "Exercise cross-system scenarios, diagnose exceptions and record the integration for service." },
+    ],
+    deliverables: [
+      "Integration architecture diagram",
+      "Device and protocol compatibility matrix",
+      "Gateway/interface schedule and system point map",
+      "Control philosophy, commissioning and troubleshooting records",
+    ],
     related: ["smart-lighting-control", "home-automation", "networking-infrastructure"],
   },
   {
@@ -311,43 +396,55 @@ export const SERVICES: Service[] = [
     eyebrow: "Beyond the threshold",
     headline: "Intelligence beyond the walls.",
     summary:
-      "The experience of a home continues outdoors. We plan connected systems across gardens, terraces, pools and estate grounds, with particular attention to the scale and varied conditions of villas, large residences and hospitality environments.",
+      "The experience of a home continues outdoors. We plan connected systems across gardens, terraces, pools and estate grounds, with particular attention to the scale and varied conditions of villas, large residences and hospitality properties.",
     cardDescription:
       "Connected lighting, gates, pools, audio and security across gardens, villas and estate environments.",
     image: "/images/outdoor-lighting.webp",
-    imageAlt: "Landscape lighting illuminating a contemporary garden and pathway",
+    imageAlt: "Landscape lighting illuminating trees, a garden path and a contemporary residence at night",
     metaTitle: "Outdoor & Estate Automation in Mumbai | Supreme Domotics",
     metaDescription:
-      "Plan landscape lighting, gates, irrigation, pool systems, outdoor audio and estate connectivity with Supreme Domotics in Mumbai and beyond.",
+      "Plan landscape lighting, gate access, irrigation, pool interfaces, outdoor audio and estate connectivity with Supreme Domotics in Mumbai.",
     capabilities: [
       {
-        title: "Landscape and pathway lighting",
+        title: "Landscape, pathway and façade lighting",
         description:
-          "Outdoor lighting is planned to support wayfinding, landscape character and the transition between indoor and outdoor spaces.",
+          "Outdoor zones are planned for wayfinding, façade emphasis and the character of the landscape, with controls coordinated to indoor scenes where the system supports it.",
       },
       {
-        title: "Estate systems and arrival",
+        title: "Gates, entry and perimeter",
         description:
-          "Automated gates, irrigation and pool systems can be integrated where the selected equipment and project requirements support it.",
+          "Gate automation, access control, video entry and perimeter-security interfaces are considered together with arrival routes and how residents, visitors and staff use the site.",
       },
       {
-        title: "Outdoor entertainment and connectivity",
+        title: "Irrigation, pools and outdoor AV",
         description:
-          "Outdoor audio and network coverage help extend entertainment and connected control to terraces, gardens and other planned areas.",
+          "Irrigation and swimming-pool systems can be integrated where the selected equipment exposes suitable control interfaces. Outdoor audio is planned around listening areas and the landscape.",
       },
       {
-        title: "Perimeter and integrated control",
+        title: "Coverage and equipment for outdoor conditions",
         description:
-          "Perimeter security and selected outdoor systems can be coordinated with the wider home control environment for a more connected property.",
+          "Wi-Fi coverage, network connections and equipment locations are planned for terraces and grounds. Weather-resistant equipment and enclosures are specified where the exposure and project requirements call for them.",
       },
     ],
     technologyIntro:
-      "Outdoor integration depends on site conditions, equipment and system interfaces. We coordinate the required connectivity and controls with the landscape, electrical and other project plans.",
-    technologies: ["Landscape lighting", "Gate and access systems", "Irrigation and pool interfaces", "Outdoor audio and network"],
+      "Outdoor systems cross landscape, electrical, network and building boundaries. We coordinate lighting zones, gate and access interfaces, pool or irrigation connections, audio and Wi-Fi against the site plan, confirming equipment suitability and integration options for the actual conditions.",
+    technologies: ["Landscape and façade lighting", "Gate and access interfaces", "Pool and irrigation integration where supported", "Outdoor audio and Wi-Fi coverage"],
     architectureCopy:
-      "Outdoor systems need to respect the landscape plan, planting, pathways, drainage and the realities of weather and maintenance. We coordinate with architects, landscape designers and services teams to create a joined-up indoor–outdoor plan.",
+      "Outdoor technology must respect planting, pathways, drainage, sightlines and future maintenance. We work with landscape architects, electrical contractors and site teams to coordinate cable routes, equipment positions and transitions between indoor controls and outdoor systems.",
     workCopy:
-      "We understand how the outdoor spaces are used, map the systems and coverage required, and coordinate the design with the site plan. Installation and integration are followed by testing, commissioning and a practical handover.",
+      "We map how each outdoor area is used, identify coverage and control needs, then coordinate the technology plan with the site and landscape drawings. Installation and integration are followed by functional testing in the agreed conditions, commissioning and a practical handover for residents and operators.",
+    deliveryStages: [
+      { title: "Understand the site", description: "Review landscape plans, arrival routes, outdoor rooms and operating requirements." },
+      { title: "Zone the environment", description: "Plan lighting, access, audio, network coverage and supported pool or irrigation interfaces." },
+      { title: "Coordinate site works", description: "Align equipment, cabling, protection and access with landscape and electrical teams." },
+      { title: "Test across boundaries", description: "Verify outdoor controls and supported indoor links, then document operation and maintenance." },
+    ],
+    deliverables: [
+      "Outdoor lighting zones and control schedule",
+      "Gate and access-control interface schedule",
+      "Outdoor network coverage and equipment plan where scoped",
+      "System integration and commissioning documentation",
+    ],
     related: ["smart-lighting-control", "home-automation", "security-access-control"],
   },
 ]
