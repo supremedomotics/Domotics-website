@@ -46,8 +46,8 @@ export const SERVICES: Service[] = [
       "Lighting shapes how a room feels throughout the day. We plan circuits, zones and control around the architecture, selected luminaires and daily routines, bringing practical operation and expressive scenes together.",
     cardDescription:
       "Architectural lighting control, considered scenes and carefully coordinated dimming for the way a home is lived in.",
-    image: "/images/design-integration.webp",
-    imageAlt: "A wall-mounted residential control interface integrated with a refined interior finish",
+    image: "/images/smart-lighting-hero.webp",
+    imageAlt: "Illustrative luxury residence interior with layered cove lighting, warm wall washes and architectural luminaires",
     metaTitle: "Smart Lighting & Lighting Control in Mumbai | Supreme Domotics",
     metaDescription:
       "Plan residential lighting circuits, KNX, DALI and Casambi control, dimming, scenes and keypads with Supreme Domotics in Mumbai.",
@@ -281,8 +281,8 @@ export const SERVICES: Service[] = [
       "A dependable network is foundational to connected living. We plan wired backbone, wireless coverage, capacity and equipment environments around the property and the systems that rely on them—without assuming every home needs the same topology.",
     cardDescription:
       "Structured connectivity, thoughtful Wi-Fi coverage and network infrastructure planned for connected homes.",
-    image: "/images/architecture-plans.webp",
-    imageAlt: "An architect reviewing residential plans at a table in a modern studio",
+    image: "/images/networking-infrastructure-hero.webp",
+    imageAlt: "Illustrative structured network rack with organized patch panels, switches and neatly routed cabling",
     metaTitle: "Home Networking & Wi-Fi in Mumbai | Supreme Domotics",
     metaDescription:
       "Supreme Domotics plans structured cabling, Wi-Fi coverage, switching, routing and connected-home infrastructure for residences in Mumbai.",
